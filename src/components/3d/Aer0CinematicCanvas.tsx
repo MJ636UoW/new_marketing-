@@ -15,6 +15,21 @@ export function Aer0CinematicCanvas({
   scrollVelocity = 0,
 }: Aer0CinematicCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollProgressRef = useRef(scrollProgress);
+  const scrollVelocityRef = useRef(scrollVelocity);
+  const accentColorRef = useRef(accentColor);
+
+  useEffect(() => {
+    scrollProgressRef.current = scrollProgress;
+  }, [scrollProgress]);
+
+  useEffect(() => {
+    scrollVelocityRef.current = scrollVelocity;
+  }, [scrollVelocity]);
+
+  useEffect(() => {
+    accentColorRef.current = accentColor;
+  }, [accentColor]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -35,19 +50,23 @@ export function Aer0CinematicCanvas({
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.2;
 
     container.appendChild(renderer.domElement);
 
     // 3. Studio Lighting Suite
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     scene.add(ambientLight);
 
-    const rimLight = new THREE.DirectionalLight(new THREE.Color(accentColor), 3.5);
+    const rimLight = new THREE.DirectionalLight(new THREE.Color(accentColorRef.current), 4.5);
     rimLight.position.set(-5, 3, -4);
     scene.add(rimLight);
 
-    const intLight = new THREE.PointLight(0xccff00, 1.8, 3.5);
+    const mainLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    mainLight.position.set(4, 5, 4);
+    scene.add(mainLight);
+
+    const intLight = new THREE.PointLight(0xccff00, 2.5, 4.5);
     intLight.position.set(0, 0, 0);
     scene.add(intLight);
 
@@ -78,6 +97,7 @@ export function Aer0CinematicCanvas({
       ior: 1.52,
       thickness: 0.55,
       reflectivity: 0.9,
+      clearcoat: 1.0,
     });
     const shellMesh = new THREE.Mesh(glassGeo, glassMat);
     bottleGroup.add(shellMesh);
@@ -94,9 +114,9 @@ export function Aer0CinematicCanvas({
     const liquidGeo = new THREE.LatheGeometry(liquidPoints, 64);
     const liquidMat = new THREE.MeshStandardMaterial({
       color: new THREE.Color("#04060c"),
-      emissive: new THREE.Color(accentColor),
-      emissiveIntensity: 0.88,
-      roughness: 0.25,
+      emissive: new THREE.Color(accentColorRef.current),
+      emissiveIntensity: 0.9,
+      roughness: 0.2,
       metalness: 0.2,
     });
     const liquidMesh = new THREE.Mesh(liquidGeo, liquidMat);
@@ -104,7 +124,7 @@ export function Aer0CinematicCanvas({
 
     // Cyan Ring
     const ringGeo = new THREE.TorusGeometry(0.71, 0.015, 16, 64);
-    const ringMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(accentColor) });
+    const ringMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(accentColorRef.current) });
     const ringMesh = new THREE.Mesh(ringGeo, ringMat);
     ringMesh.position.set(0, 0.45, 0);
     ringMesh.rotation.x = Math.PI / 2;
@@ -125,9 +145,9 @@ export function Aer0CinematicCanvas({
 
     const capRingGeo = new THREE.TorusGeometry(0.31, 0.02, 16, 48);
     const capRingMat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(accentColor),
-      emissive: new THREE.Color(accentColor),
-      emissiveIntensity: 0.5,
+      color: new THREE.Color(accentColorRef.current),
+      emissive: new THREE.Color(accentColorRef.current),
+      emissiveIntensity: 0.6,
     });
     const capRingMesh = new THREE.Mesh(capRingGeo, capRingMat);
     capRingMesh.position.set(0, 0.28, 0);
@@ -135,8 +155,40 @@ export function Aer0CinematicCanvas({
     capGroup.add(capRingMesh);
     bottleGroup.add(capGroup);
 
+    // Brand Wordmark Texture
+    let wordmarkMesh: THREE.Mesh | null = null;
+    const updateWordmark = (colHex: string) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 512;
+      canvas.height = 256;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, 512, 256);
+        ctx.font = "900 54px Orbitron, sans-serif";
+        ctx.fillStyle = "#f0f4f8";
+        ctx.textAlign = "center";
+        ctx.fillText("AER / 0", 256, 110);
+
+        ctx.font = "bold 20px Inter, sans-serif";
+        ctx.fillStyle = colHex;
+        ctx.fillText("CINEMATIC TIMELINE", 256, 160);
+      }
+      const tex = new THREE.CanvasTexture(canvas);
+      if (!wordmarkMesh) {
+        const geo = new THREE.PlaneGeometry(1.3, 0.65);
+        const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0.95, depthWrite: false });
+        wordmarkMesh = new THREE.Mesh(geo, mat);
+        wordmarkMesh.position.set(0, 0.0, 0.73);
+        bottleGroup.add(wordmarkMesh);
+      } else {
+        (wordmarkMesh.material as THREE.MeshBasicMaterial).map = tex;
+        (wordmarkMesh.material as THREE.MeshBasicMaterial).needsUpdate = true;
+      }
+    };
+    updateWordmark(accentColorRef.current);
+
     // Inner Particles
-    const innerParticleCount = 140;
+    const innerParticleCount = 160;
     const innerGeo = new THREE.BufferGeometry();
     const innerPositions = new Float32Array(innerParticleCount * 3);
     const innerSpeeds = new Float32Array(innerParticleCount);
@@ -149,21 +201,21 @@ export function Aer0CinematicCanvas({
       innerPositions[i * 3] = Math.cos(theta) * r;
       innerPositions[i * 3 + 1] = y;
       innerPositions[i * 3 + 2] = Math.sin(theta) * r;
-      innerSpeeds[i] = 0.004 + Math.random() * 0.01;
+      innerSpeeds[i] = 0.005 + Math.random() * 0.012;
     }
     innerGeo.setAttribute("position", new THREE.BufferAttribute(innerPositions, 3));
     const innerMat = new THREE.PointsMaterial({
-      size: 0.03,
-      color: new THREE.Color(accentColor),
+      size: 0.032,
+      color: new THREE.Color(accentColorRef.current),
       transparent: true,
-      opacity: 0.8,
+      opacity: 0.85,
       blending: THREE.AdditiveBlending,
     });
     const innerParticles = new THREE.Points(innerGeo, innerMat);
     bottleGroup.add(innerParticles);
 
     // Atmospheric Cloud Particles
-    const atmosCount = 200;
+    const atmosCount = 250;
     const atmosGeo = new THREE.BufferGeometry();
     const atmosPositions = new Float32Array(atmosCount * 3);
 
@@ -187,7 +239,7 @@ export function Aer0CinematicCanvas({
     const atmosParticles = new THREE.Points(atmosGeo, atmosMat);
     bottleGroup.add(atmosParticles);
 
-    // Floor Reflection
+    // Reflective Dark Floor
     const floorGeo = new THREE.PlaneGeometry(20, 20);
     const floorMat = new THREE.MeshStandardMaterial({ color: new THREE.Color("#030406"), roughness: 0.2, metalness: 0.8 });
     const floorMesh = new THREE.Mesh(floorGeo, floorMat);
@@ -195,6 +247,7 @@ export function Aer0CinematicCanvas({
     floorMesh.rotation.x = -Math.PI / 2;
     scene.add(floorMesh);
 
+    // Resize Handler
     const handleResize = () => {
       if (!containerRef.current) return;
       const w = containerRef.current.clientWidth || window.innerWidth;
@@ -203,29 +256,41 @@ export function Aer0CinematicCanvas({
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };
-
     window.addEventListener("resize", handleResize);
 
-    // 5. Animation Loop with Scroll Interpolation
+    // ResizeObserver to ensure canvas NEVER gets collapsed to 0px
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(container);
+
+    // 5. Continuous 60 FPS Render Loop with Smooth Scroll Interpolation
     let animationFrameId: number;
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
       const time = performance.now() * 0.001;
 
-      const p = Math.max(0, Math.min(1, scrollProgress));
+      const p = Math.max(0, Math.min(1, scrollProgressRef.current));
+      const vel = scrollVelocityRef.current;
 
-      // Act 2 Explosion, Act 3 Atmosphere, Act 4 Orbit, Act 5 Immersion
+      // Color updates
+      const targetCol = new THREE.Color(accentColorRef.current);
+      rimLight.color.lerp(targetCol, 0.08);
+      liquidMat.emissive.lerp(targetCol, 0.08);
+      ringMat.color.lerp(targetCol, 0.08);
+      innerMat.color.lerp(targetCol, 0.08);
+
+      // Act 2 Separation exploded view
       const act2Factor = THREE.MathUtils.smoothstep(p, 0.12, 0.28) - THREE.MathUtils.smoothstep(p, 0.33, 0.42);
-      const act3Factor = THREE.MathUtils.smoothstep(p, 0.30, 0.45) - THREE.MathUtils.smoothstep(p, 0.52, 0.62);
-
       capGroup.position.y = THREE.MathUtils.lerp(capGroup.position.y, 2.05 + act2Factor * 0.95, 0.1);
       shellMesh.position.y = THREE.MathUtils.lerp(shellMesh.position.y, act2Factor * 0.35, 0.1);
       liquidMesh.position.y = THREE.MathUtils.lerp(liquidMesh.position.y, -act2Factor * 0.25, 0.1);
 
+      // Act 3 Atmosphere cloud expansion
+      const act3Factor = THREE.MathUtils.smoothstep(p, 0.30, 0.45) - THREE.MathUtils.smoothstep(p, 0.52, 0.62);
       atmosMat.opacity = THREE.MathUtils.lerp(atmosMat.opacity, act3Factor * 0.85, 0.1);
       atmosParticles.rotation.y += 0.002 + act3Factor * 0.01;
 
+      // Act 4 Orbit & Act 5 Immersion Camera Path
       let targetCamX = 0;
       let targetCamY = 0;
       let targetCamZ = 5.8;
@@ -244,19 +309,24 @@ export function Aer0CinematicCanvas({
         targetCamX = THREE.MathUtils.lerp(0.0, 0.05, easeImmersion);
       }
 
+      // Camera FOV Velocity Blur
+      const velNorm = Math.min(vel * 0.04, 1.0);
+      camera.fov = THREE.MathUtils.lerp(camera.fov, 42 + velNorm * 12, 0.1);
+      camera.updateProjectionMatrix();
+
       camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetCamX, 0.08);
       camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetCamY, 0.08);
       camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetCamZ, 0.08);
       camera.lookAt(0, 0.1, 0);
 
-      bottleGroup.rotation.y += 0.003;
+      bottleGroup.rotation.y += 0.004;
 
-      // Particle drift
+      // Particle upward drift
       const posAttr = innerGeo.attributes.position as THREE.BufferAttribute;
       const posArray = posAttr.array as Float32Array;
 
       for (let i = 0; i < innerParticleCount; i++) {
-        posArray[i * 3 + 1] += innerSpeeds[i];
+        posArray[i * 3 + 1] += innerSpeeds[i] + velNorm * 0.01;
         if (posArray[i * 3 + 1] > 0.42) {
           posArray[i * 3 + 1] = -1.65;
         }
@@ -270,13 +340,14 @@ export function Aer0CinematicCanvas({
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      resizeObserver.disconnect();
       window.removeEventListener("resize", handleResize);
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
       renderer.dispose();
     };
-  }, [accentColor, scrollProgress, scrollVelocity]);
+  }, []);
 
-  return <div ref={containerRef} className="w-full h-full relative" />;
+  return <div ref={containerRef} className="w-full h-full relative min-h-[400px]" />;
 }

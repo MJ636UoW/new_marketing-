@@ -95,8 +95,8 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
     <div ref={containerRef} className="relative h-[600vh] w-full bg-[#040406]">
       {/* Sticky Fullscreen Canvas & Editorial Overlays */}
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden hud-grid">
-        {/* Native Three.js Canvas Layer */}
-        <div className="absolute inset-0 z-0">
+        {/* Native Three.js 3D Canvas Layer */}
+        <div className="absolute inset-0 z-0 w-full h-full">
           <Aer0CinematicCanvas
             accentColor={accentColor}
             scrollProgress={progressVal}
@@ -116,11 +116,11 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
 
         {/* Ghosted Background Telemetry Lines & Annotations */}
         <div className="absolute inset-0 pointer-events-none z-10 p-8 md:p-16 flex flex-col justify-between select-none">
-          <div className="flex justify-between items-center text-[10px] font-display text-[#64748b]/30">
+          <div className="flex justify-between items-center text-[10px] font-display text-[#64748b]/40">
             <div>[LAT: 35.6762° N // LON: 139.6503° E]</div>
             <div>[SPECTRAL DENSITY: 1.028 g/cm³]</div>
           </div>
-          <div className="flex justify-between items-center text-[10px] font-display text-[#64748b]/30">
+          <div className="flex justify-between items-center text-[10px] font-display text-[#64748b]/40">
             <div>+ CROSSHAIR RETICLE 04</div>
             <div>[CORE TRANSMISSION: 92%]</div>
           </div>
