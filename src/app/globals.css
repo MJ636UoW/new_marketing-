@@ -1,0 +1,150 @@
+@import "tailwindcss";
+
+@theme {
+  --color-obsidian: #040406;
+  --color-obsidian-surface: #0a0c14;
+  --color-obsidian-card: #0e111a;
+  --color-electric-cyan: #00f0ff;
+  --color-sharp-lime: #ccff00;
+  --color-soft-white: #f0f4f8;
+  --color-cool-gray: #64748b;
+  
+  --font-display: var(--font-orbitron), monospace;
+  --font-sans: var(--font-inter), sans-serif;
+}
+
+:root {
+  --bg-obsidian: #040406;
+  --cyan: #00f0ff;
+  --lime: #ccff00;
+  --white: #f0f4f8;
+  --gray: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #040406;
+  color: #f0f4f8;
+  font-family: var(--font-inter), sans-serif;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: #040406;
+  color: #f0f4f8;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Custom HUD Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #040406;
+  border-left: 1px solid rgba(0, 240, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00f0ff;
+}
+
+/* Technical HUD Background Grid */
+.hud-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+}
+
+.hud-grid-dense {
+  background-size: 16px 16px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+}
+
+/* Scanline Effect */
+.scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+}
+
+/* Sci-fi HUD Border Corners */
+.hud-border {
+  position: relative;
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  background: rgba(10, 12, 20, 0.75);
+  backdrop-filter: blur(8px);
+}
+
+.hud-border-lime {
+  border-color: rgba(204, 255, 0, 0.3);
+}
+
+.hud-border::before, .hud-border::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-color: #00f0ff;
+  border-style: solid;
+  pointer-events: none;
+}
+
+.hud-border::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1px 0 0 1px;
+}
+
+.hud-border::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 1px 1px 0;
+}
+
+.hud-border-lime::before, .hud-border-lime::after {
+  border-color: #ccff00;
+}
+
+/* Glow Effects */
+.glow-cyan-sm {
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+.glow-cyan-lg {
+  box-shadow: 0 0 40px rgba(0, 240, 255, 0.4);
+}
+
+.text-glow-cyan {
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+}
+
+.text-glow-lime {
+  text-shadow: 0 0 10px rgba(204, 255, 0, 0.6);
+}
+
+/* Pulse Animations */
+@keyframes hudPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
+.animate-hud-pulse {
+  animation: hudPulse 3s infinite ease-in-out;
+}
