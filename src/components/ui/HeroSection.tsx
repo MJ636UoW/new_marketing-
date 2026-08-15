@@ -16,6 +16,17 @@ interface HeroSectionProps {
   onOpenModal: (modal: ModalType) => void;
 }
 
+const HERO_PARTICLES = [
+  { id: 1, width: "2px", height: "2px", top: "15%", left: "18%", opacity: 0.3, duration: 5 },
+  { id: 2, width: "3px", height: "3px", top: "35%", left: "75%", opacity: 0.4, duration: 7 },
+  { id: 3, width: "2px", height: "2px", top: "65%", left: "12%", opacity: 0.25, duration: 6 },
+  { id: 4, width: "4px", height: "4px", top: "82%", left: "84%", opacity: 0.35, duration: 8 },
+  { id: 5, width: "2px", height: "2px", top: "42%", left: "48%", opacity: 0.45, duration: 5.5 },
+  { id: 6, width: "3px", height: "3px", top: "22%", left: "88%", opacity: 0.3, duration: 6.5 },
+  { id: 7, width: "2px", height: "2px", top: "72%", left: "38%", opacity: 0.2, duration: 7.5 },
+  { id: 8, width: "3px", height: "3px", top: "10%", left: "62%", opacity: 0.4, duration: 8.5 },
+];
+
 export function HeroSection({ onOpenModal }: HeroSectionProps) {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -44,24 +55,25 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
       id="hero"
       className="relative w-full min-h-screen pt-24 pb-12 flex flex-col justify-between hud-grid overflow-hidden bg-[#040406] selection:bg-[#00f0ff] selection:text-[#040406]"
     >
+      {/* Deterministic Floating Background Particles */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        {[...Array(20)].map((_, i) => (
+        {HERO_PARTICLES.map((p) => (
           <motion.div
-            key={i}
+            key={p.id}
             className="absolute rounded-full bg-[#00f0ff]"
             style={{
-              width: Math.random() * 3 + 1 + "px",
-              height: Math.random() * 3 + 1 + "px",
-              top: Math.random() * 100 + "%",
-              left: Math.random() * 100 + "%",
-              opacity: Math.random() * 0.4 + 0.1,
+              width: p.width,
+              height: p.height,
+              top: p.top,
+              left: p.left,
+              opacity: p.opacity,
             }}
             animate={{
-              y: [0, -40, 0],
-              opacity: [0.1, 0.5, 0.1],
+              y: [0, -35, 0],
+              opacity: [0.15, p.opacity, 0.15],
             }}
             transition={{
-              duration: Math.random() * 6 + 4,
+              duration: p.duration,
               repeat: Infinity,
               ease: "easeInOut",
             }}

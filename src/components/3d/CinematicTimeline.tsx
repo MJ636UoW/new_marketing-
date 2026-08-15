@@ -55,6 +55,7 @@ const EDITORIAL_SECTIONS = [
 export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentSectionIdx, setCurrentSectionIdx] = useState(0);
+  const [progressVal, setProgressVal] = useState(0);
   const [velocityDisplay, setVelocityDisplay] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -72,9 +73,12 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
     window.addEventListener("resize", checkMobile);
 
     const unsubscribeProgress = scrollYProgress.on("change", (v) => {
-      if (v < 0.33) {
+      const val = typeof v === "number" && !isNaN(v) ? v : 0;
+      setProgressVal(val);
+
+      if (val < 0.33) {
         setCurrentSectionIdx(0);
-      } else if (v < 0.66) {
+      } else if (val < 0.66) {
         setCurrentSectionIdx(1);
       } else {
         setCurrentSectionIdx(2);
@@ -82,7 +86,8 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
     });
 
     const unsubscribeVelocity = smoothVelocity.on("change", (vel) => {
-      setVelocityDisplay(Math.abs(vel * 100));
+      const v = typeof vel === "number" && !isNaN(vel) ? Math.abs(vel * 100) : 0;
+      setVelocityDisplay(v);
     });
 
     return () => {
@@ -98,7 +103,7 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
     <div ref={containerRef} className="relative h-[600vh] w-full bg-[#040406]">
       {/* Sticky Fullscreen Canvas & Editorial Overlays */}
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden hud-grid">
-        {/* R3F Canvas Layer (Product visible behind/beside copy) */}
+        {/* R3F Canvas Layer */}
         <div className="absolute inset-0 z-0">
           <Canvas
             camera={{ position: [0, 0, 5.8], fov: 42 }}
@@ -108,7 +113,7 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
             <ambientLight intensity={0.3} />
             <CinematicBottle
               accentColor={accentColor}
-              scrollProgress={scrollYProgress.get()}
+              scrollProgress={progressVal}
               scrollVelocity={velocityDisplay}
               isMobile={isMobile}
             />
