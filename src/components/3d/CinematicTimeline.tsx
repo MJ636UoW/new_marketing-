@@ -60,8 +60,7 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
   const scrollVelocityRaw = useVelocity(scrollYProgress);
   const smoothVelocity = useSpring(scrollVelocityRaw, { damping: 25, stiffness: 200 });
 
-  // Equal 3-Act Scroll Distribution across 300vh pin height
-  // Act 1: 0.0 - 0.33 | Act 2: 0.33 - 0.66 | Act 3: 0.66 - 1.0
+  // 1:1 Overlapping Seamless Opacity & Translation Transforms across 450vh
   const sec1Opacity = useTransform(scrollYProgress, [0.0, 0.25, 0.33], [1, 1, 0]);
   const sec1Y = useTransform(scrollYProgress, [0.0, 0.25, 0.33], [0, 0, -30]);
 
@@ -91,9 +90,9 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
   const activeIndex = progressVal < 0.33 ? 0 : progressVal < 0.66 ? 1 : 2;
 
   return (
-    <div ref={containerRef} className="relative h-[300vh] w-full bg-[#040406]">
+    <div ref={containerRef} className="relative h-[450vh] w-full bg-[#040406]">
       {/* Sticky Fullscreen Canvas & Editorial Overlays */}
-      <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden hud-grid">
+      <div className="sticky top-0 h-screen w-full flex flex-col justify-between overflow-hidden hud-grid pt-24 pb-8">
         {/* Native Three.js 3D Canvas Layer */}
         <div className="absolute inset-0 z-0 w-full h-full">
           <Aer0CinematicCanvas
@@ -114,19 +113,19 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
         )}
 
         {/* Ghosted Background Telemetry Lines & Annotations */}
-        <div className="absolute inset-0 pointer-events-none z-10 p-8 md:p-16 flex flex-col justify-between select-none">
+        <div className="absolute inset-0 pointer-events-none z-10 p-8 md:p-16 flex flex-col justify-between select-none pt-24">
           <div className="flex justify-between items-center text-[10px] font-display text-[#64748b]/50">
             <div>[LAT: 35.6762° N // LON: 139.6503° E]</div>
             <div>[SPECTRAL DENSITY: 1.028 g/cm³]</div>
           </div>
-          <div className="flex justify-between items-center text-[10px] font-display text-[#64748b]/50">
+          <div className="flex justify-between items-center text-[10px] font-display text-[#64748b]/50 mb-12">
             <div>+ CROSSHAIR RETICLE 04</div>
             <div>[CORE TRANSMISSION: 92%]</div>
           </div>
         </div>
 
-        {/* Continuous Overlapping Editorial Overlay Layers */}
-        <div className="absolute inset-0 pointer-events-none z-20 max-w-7xl mx-auto w-full px-6 md:px-12 flex items-center">
+        {/* Continuous Overlapping Editorial Overlay Layers (Padded below Navbar) */}
+        <div className="absolute inset-0 pointer-events-none z-20 max-w-7xl mx-auto w-full px-6 md:px-12 flex items-center pt-16">
           {/* SECTION 01 */}
           <motion.div
             style={{ opacity: sec1Opacity, y: sec1Y }}
@@ -198,7 +197,7 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
         </div>
 
         {/* Bottom Section Progress Indicator Bar */}
-        <div className="absolute bottom-8 left-6 right-6 md:left-12 md:right-12 z-20 pointer-events-none flex justify-between items-center text-[10px] font-display text-[#64748b]">
+        <div className="absolute bottom-6 left-6 right-6 md:left-12 md:right-12 z-20 pointer-events-none flex justify-between items-center text-[10px] font-display text-[#64748b]">
           <div className="flex gap-4 items-center">
             {EDITORIAL_SECTIONS.map((sec, idx) => (
               <div

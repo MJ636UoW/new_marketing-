@@ -43,7 +43,7 @@ export function Aer0CinematicCanvas({
     scene.background = new THREE.Color("#040406");
 
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-    camera.position.set(0, 0, 5.8);
+    camera.position.set(0, 0, 5.4);
 
     // 2. WebGL Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -72,6 +72,7 @@ export function Aer0CinematicCanvas({
 
     // 4. Bottle Hierarchy Group
     const bottleGroup = new THREE.Group();
+    bottleGroup.position.set(0, -0.15, 0);
     scene.add(bottleGroup);
 
     // Glass Shell Geometry & Physical Material
@@ -290,23 +291,23 @@ export function Aer0CinematicCanvas({
 
       // Camera Orbit & Plunge
       let targetCamX = 0;
-      let targetCamY = 0;
-      let targetCamZ = 5.8;
+      let targetCamY = -0.15;
+      let targetCamZ = 5.4;
 
       if (p >= 0.33 && p < 0.66) {
         // Act 2 Orbit Arc
         const orbitProgress = (p - 0.33) / 0.33;
         const angle = orbitProgress * Math.PI * 1.6;
-        targetCamX = Math.sin(angle) * 5.4;
-        targetCamZ = Math.cos(angle) * 5.4;
-        targetCamY = Math.sin(orbitProgress * Math.PI) * 0.8;
+        targetCamX = Math.sin(angle) * 5.2;
+        targetCamZ = Math.cos(angle) * 5.2;
+        targetCamY = Math.sin(orbitProgress * Math.PI) * 0.7 - 0.15;
       } else if (p >= 0.66) {
         // Act 3 Deep Immersion Plunge into Glowing Core
         const immerseProgress = (p - 0.66) / 0.34;
         const easeImmersion = Math.sin(immerseProgress * Math.PI);
-        targetCamZ = THREE.MathUtils.lerp(5.4, 2.0, easeImmersion);
-        targetCamY = THREE.MathUtils.lerp(0.0, 0.15, easeImmersion);
-        targetCamX = THREE.MathUtils.lerp(0.0, 0.1, easeImmersion);
+        targetCamZ = THREE.MathUtils.lerp(5.2, 1.8, easeImmersion);
+        targetCamY = THREE.MathUtils.lerp(-0.15, 0.05, easeImmersion);
+        targetCamX = THREE.MathUtils.lerp(0.0, 0.08, easeImmersion);
       }
 
       // Camera FOV Easing
@@ -317,7 +318,7 @@ export function Aer0CinematicCanvas({
       camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetCamX, 0.08);
       camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetCamY, 0.08);
       camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetCamZ, 0.08);
-      camera.lookAt(0, 0.1, 0);
+      camera.lookAt(0, -0.05, 0);
 
       bottleGroup.rotation.y += 0.005 + p * 0.004;
 
