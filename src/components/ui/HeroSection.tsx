@@ -1,30 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Scene3D } from "../3d/Scene3D";
-import { generateAllocationId } from "@/lib/utils";
-import { FORMULAS } from "@/lib/constants";
+import { ModalType } from "./GlobalModals";
 
 interface HeroSectionProps {
-  onOpenReserve?: () => void;
+  onOpenModal: (modal: ModalType) => void;
 }
 
-export function HeroSection({ onOpenReserve }: HeroSectionProps) {
+export function HeroSection({ onOpenModal }: HeroSectionProps) {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    formula: FORMULAS[0].name,
-  });
-
-  const [allocationResult, setAllocationResult] = useState<{
-    id: string;
-    timestamp: string;
-    name: string;
-    formula: string;
-  } | null>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -36,29 +22,6 @@ export function HeroSection({ onOpenReserve }: HeroSectionProps) {
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
-
-  const handleModalSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.email) return;
-
-    const newId = generateAllocationId();
-    const timestamp = new Date().toISOString();
-
-    setAllocationResult({
-      id: newId,
-      timestamp,
-      name: formData.name || "SUBJECT 01",
-      formula: formData.formula,
-    });
-  };
-
-  const handlePrimaryClick = () => {
-    if (onOpenReserve) {
-      onOpenReserve();
-    } else {
-      setIsModalOpen(true);
-    }
-  };
 
   const handleSecondaryClick = () => {
     const storySection = document.getElementById("story");
@@ -145,7 +108,7 @@ export function HeroSection({ onOpenReserve }: HeroSectionProps) {
 
       {/* Main Grid Content */}
       <div className="max-w-7xl mx-auto w-full px-4 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto z-10">
-        {/* Left Column: Mysterious Hero Copy with Masked Reveals */}
+        {/* Left Column: Mysterious Hero Copy */}
         <div className="lg:col-span-6 space-y-8">
           {/* Kicker */}
           <div className="overflow-hidden">
@@ -159,7 +122,7 @@ export function HeroSection({ onOpenReserve }: HeroSectionProps) {
             </motion.div>
           </div>
 
-          {/* Headline (Masked Reveal) */}
+          {/* Headline */}
           <div className="overflow-hidden space-y-1">
             <motion.h1
               initial={{ y: "100%", opacity: 0 }}
@@ -194,7 +157,7 @@ export function HeroSection({ onOpenReserve }: HeroSectionProps) {
             >
               {/* Primary CTA */}
               <button
-                onClick={handlePrimaryClick}
+                onClick={() => onOpenModal("registration")}
                 className="hud-border px-8 py-4 bg-[#00f0ff] text-[#040406] font-display text-xs font-black tracking-widest hover:bg-[#ccff00] transition-colors duration-300 shadow-[0_0_25px_rgba(0,240,255,0.4)]"
               >
                 ENTER THE STATE
@@ -226,7 +189,6 @@ export function HeroSection({ onOpenReserve }: HeroSectionProps) {
       <div className="max-w-7xl mx-auto w-full px-4 md:px-8 flex justify-between items-center text-[10px] font-display text-[#64748b] pt-6 z-10 border-t border-[#00f0ff]/10">
         <span>[RESTRICTED ALLOCATION // BATCH 01]</span>
 
-        {/* Vertical Animated Scroll Line */}
         <a
           href="#cinematic"
           className="flex items-center gap-3 text-[#00f0ff] hover:text-[#ccff00] transition-colors group cursor-pointer"
@@ -241,149 +203,6 @@ export function HeroSection({ onOpenReserve }: HeroSectionProps) {
           </div>
         </a>
       </div>
-
-      {/* Launch Registration Modal */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[#040406]/95 backdrop-blur-md flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="max-w-lg w-full hud-border p-8 bg-[#0a0c14] space-y-6 text-left relative"
-            >
-              <button
-                onClick={() => {
-                  setIsModalOpen(false);
-                  setAllocationResult(null);
-                }}
-                className="absolute top-4 right-4 text-xs font-display text-[#64748b] hover:text-[#00f0ff]"
-              >
-                [CLOSE X]
-              </button>
-
-              {!allocationResult ? (
-                <>
-                  <div className="space-y-2 border-b border-[#00f0ff]/20 pb-4">
-                    <div className="text-[10px] font-display text-[#00f0ff]">
-                      AUTHENTICATION // ALLOCATION PROTOCOL
-                    </div>
-                    <h3 className="font-display text-2xl font-black text-[#f0f4f8]">
-                      ENTER THE STATE
-                    </h3>
-                    <p className="text-xs text-[#64748b] font-sans">
-                      Request priority batch access for AER/0 functional state hydration.
-                    </p>
-                  </div>
-
-                  <form onSubmit={handleModalSubmit} className="space-y-4">
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-display text-[#64748b]">
-                        SUBJECT FULL NAME
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="DR. ALEX VANCE"
-                        value={formData.name}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
-                        className="w-full bg-[#040406] border border-[#00f0ff]/30 p-3 font-mono text-xs text-[#f0f4f8] focus:border-[#00f0ff] focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-display text-[#64748b]">
-                        COMMUNICATION ENDPOINT (EMAIL)
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="ALEX@LABORATORY.IO"
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
-                        className="w-full bg-[#040406] border border-[#00f0ff]/30 p-3 font-mono text-xs text-[#f0f4f8] focus:border-[#00f0ff] focus:outline-none"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-display text-[#64748b]">
-                        FORMULATION SELECTION
-                      </label>
-                      <select
-                        value={formData.formula}
-                        onChange={(e) =>
-                          setFormData({ ...formData, formula: e.target.value })
-                        }
-                        className="w-full bg-[#040406] border border-[#00f0ff]/30 p-3 font-mono text-xs text-[#f0f4f8] focus:border-[#00f0ff] focus:outline-none"
-                      >
-                        {FORMULAS.map((fm) => (
-                          <option key={fm.id} value={fm.name}>
-                            {fm.code} // {fm.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full py-4 bg-[#00f0ff] text-[#040406] font-display text-xs font-black tracking-widest hover:bg-[#ccff00] transition-colors"
-                    >
-                      CONFIRM STATE ENTRY PROTOCOL
-                    </button>
-                  </form>
-                </>
-              ) : (
-                <>
-                  <div className="space-y-2 border-b border-[#00f0ff]/20 pb-4">
-                    <div className="text-[10px] font-display text-[#ccff00]">
-                      ✓ ALLOCATION RESERVED
-                    </div>
-                    <h3 className="font-display text-2xl font-black text-[#f0f4f8]">
-                      STATE ACCESS GRANTED
-                    </h3>
-                  </div>
-
-                  <div className="hud-border p-4 bg-[#040406] space-y-2 font-mono text-xs text-[#64748b]">
-                    <div className="flex justify-between">
-                      <span>ALLOCATION ID:</span>
-                      <span className="text-[#00f0ff] font-bold">
-                        {allocationResult.id}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>SUBJECT:</span>
-                      <span className="text-[#f0f4f8]">{allocationResult.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>FORMULA:</span>
-                      <span className="text-[#ccff00]">{allocationResult.formula}</span>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setIsModalOpen(false);
-                      setAllocationResult(null);
-                    }}
-                    className="w-full py-3 bg-[#00f0ff] text-[#040406] font-display text-xs font-bold tracking-widest hover:bg-[#ccff00] transition-colors"
-                  >
-                    RETURN TO EXPERIENCE
-                  </button>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }

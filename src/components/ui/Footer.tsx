@@ -1,8 +1,13 @@
 "use client";
 
 import React from "react";
+import { ModalType } from "./GlobalModals";
 
-export function Footer() {
+interface FooterProps {
+  onOpenModal: (modal: ModalType) => void;
+}
+
+export function Footer({ onOpenModal }: FooterProps) {
   return (
     <footer className="w-full bg-[#040406] border-t border-[#00f0ff]/20 py-16 px-4 md:px-8 hud-grid font-display text-xs text-[#64748b] selection:bg-[#00f0ff] selection:text-[#040406]">
       <div className="max-w-7xl mx-auto space-y-12">
@@ -21,7 +26,34 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Coordinates */}
+          {/* Action Hub Buttons */}
+          <div className="md:col-span-4 space-y-3">
+            <div className="text-[10px] text-[#00f0ff] uppercase tracking-widest">
+              SYSTEM ACTIONS:
+            </div>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => onOpenModal("registration")}
+                className="hud-border p-2.5 text-left text-xs text-[#f0f4f8] hover:border-[#00f0ff] hover:text-[#00f0ff] transition-colors"
+              >
+                + GET LAUNCH ACCESS
+              </button>
+              <button
+                onClick={() => onOpenModal("cinematic")}
+                className="hud-border p-2.5 text-left text-xs text-[#f0f4f8] hover:border-[#ccff00] hover:text-[#ccff00] transition-colors"
+              >
+                + WATCH THE SYSTEM (FULLSCREEN OVERLAY)
+              </button>
+              <button
+                onClick={() => onOpenModal("formula")}
+                className="hud-border p-2.5 text-left text-xs text-[#f0f4f8] hover:border-[#00f0ff] hover:text-[#00f0ff] transition-colors"
+              >
+                + VIEW FULL FORMULA DOSSIER
+              </button>
+            </div>
+          </div>
+
+          {/* Global Lab Coordinates */}
           <div className="md:col-span-4 space-y-2">
             <div className="text-[10px] text-[#00f0ff] uppercase tracking-widest">
               GLOBAL LABORATORY COORDINATES:
@@ -32,22 +64,6 @@ export function Footer() {
               <li>LAB 03 // SAN FRANCISCO — 37.7749° N, 122.4194° W</li>
             </ul>
           </div>
-
-          {/* System Telemetry Status */}
-          <div className="md:col-span-4 hud-border p-4 space-y-2 bg-[#0a0c14]">
-            <div className="flex justify-between items-center text-[10px]">
-              <span className="text-[#64748b]">SYSTEM HARDWARE STATUS</span>
-              <span className="text-[#00f0ff] font-bold">ONLINE</span>
-            </div>
-            <div className="flex justify-between text-xs text-[#f0f4f8]">
-              <span>ATM PRESSURE:</span>
-              <span className="text-[#ccff00]">3.1 BAR</span>
-            </div>
-            <div className="flex justify-between text-xs text-[#f0f4f8]">
-              <span>PURITY SPECIFICATION:</span>
-              <span className="text-[#00f0ff]">99.8% STABILITY</span>
-            </div>
-          </div>
         </div>
 
         {/* Regulatory & Copyright Bar */}
@@ -56,14 +72,25 @@ export function Footer() {
             © 2026 AER/0 SCIENTIFIC CORP. ALL RIGHTS RESERVED. FOR ADULT CELLULAR USE ONLY.
           </div>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-[#00f0ff] transition-colors">
-              PRIVACY PROTOCOL
-            </a>
-            <a href="#" className="hover:text-[#00f0ff] transition-colors">
-              TERMS OF ALLOCATION
-            </a>
-            <a href="#" className="hover:text-[#00f0ff] transition-colors">
-              LABORATORY DOSSIER
+            <button
+              onClick={() => onOpenModal("privacy")}
+              className="hover:text-[#00f0ff] transition-colors"
+            >
+              PRIVACY
+            </button>
+            <button
+              onClick={() => onOpenModal("terms")}
+              className="hover:text-[#00f0ff] transition-colors"
+            >
+              TERMS
+            </button>
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#00f0ff] transition-colors"
+            >
+              INSTAGRAM ↗
             </a>
           </div>
         </div>

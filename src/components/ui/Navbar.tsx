@@ -2,8 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { ModalType } from "./GlobalModals";
 
-export function Navbar() {
+interface NavbarProps {
+  onOpenModal: (modal: ModalType) => void;
+}
+
+export function Navbar({ onOpenModal }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -14,6 +19,17 @@ export function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <motion.header
@@ -27,8 +43,11 @@ export function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
-        {/* AER/0 Brand Logo */}
-        <a href="#" className="flex items-center gap-3 group">
+        {/* AER/0 Brand Logo -> Scrolls to Top */}
+        <button
+          onClick={scrollToTop}
+          className="flex items-center gap-3 group text-left"
+        >
           <div className="w-8 h-8 hud-border flex items-center justify-center font-display text-xs font-bold text-[#00f0ff] group-hover:border-[#ccff00] transition-colors">
             01
           </div>
@@ -40,7 +59,7 @@ export function Navbar() {
               LABORATORY GRADE
             </span>
           </div>
-        </a>
+        </button>
 
         {/* Live Telemetry Ticker (Desktop) */}
         <div className="hidden lg:flex items-center gap-6 text-[10px] font-display text-[#64748b] border-x border-[#00f0ff]/15 px-6 py-1">
@@ -60,39 +79,39 @@ export function Navbar() {
 
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-8 text-xs font-display text-[#64748b]">
-          <a
-            href="#hero"
+          <button
+            onClick={() => scrollToSection("story")}
             className="hover:text-[#00f0ff] transition-colors tracking-wider"
           >
-            01 // SYSTEM
-          </a>
-          <a
-            href="#story"
+            01 // STORY
+          </button>
+          <button
+            onClick={() => onOpenModal("formula")}
             className="hover:text-[#00f0ff] transition-colors tracking-wider"
           >
-            02 // STATE
-          </a>
-          <a
-            href="#science"
+            02 // FORMULA
+          </button>
+          <button
+            onClick={() => scrollToSection("formulas")}
             className="hover:text-[#00f0ff] transition-colors tracking-wider"
           >
-            03 // SCIENCE
-          </a>
-          <a
-            href="#formulas"
+            03 // FLAVORS
+          </button>
+          <button
+            onClick={() => onOpenModal("registration")}
             className="hover:text-[#00f0ff] transition-colors tracking-wider"
           >
-            04 // FORMULAS
-          </a>
+            04 // LAUNCH
+          </button>
         </nav>
 
         {/* Action CTA */}
-        <a
-          href="#reserve"
+        <button
+          onClick={() => onOpenModal("registration")}
           className="hud-border px-5 py-2 text-xs font-display font-semibold tracking-widest text-[#00f0ff] hover:text-[#040406] hover:bg-[#00f0ff] transition-all duration-300"
         >
           RESERVE BATCH
-        </a>
+        </button>
       </div>
     </motion.header>
   );

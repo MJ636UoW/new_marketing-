@@ -1,38 +1,39 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { generateAllocationId } from "@/lib/utils";
-import { FORMULAS } from "@/lib/constants";
+import { FLAVOR_STATIONS } from "./FlavorSelection";
 
 export function LaunchRegistration() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    formula: FORMULAS[0].name,
-    priorityCode: "",
+    flavor: FLAVOR_STATIONS[0].name,
   });
 
-  const [allocationResult, setAllocationResult] = useState<{
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successResult, setSuccessResult] = useState<{
     id: string;
     timestamp: string;
-    name: string;
-    formula: string;
   } | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.email) return;
+    setErrorMessage("");
 
-    const newId = generateAllocationId();
-    const timestamp = new Date().toISOString();
+    if (!formData.email || !formData.email.includes("@")) {
+      setErrorMessage("PLEASE ENTER A VALID EMAIL ENDPOINT");
+      return;
+    }
 
-    setAllocationResult({
-      id: newId,
-      timestamp,
-      name: formData.name || "UNNAMED SUBJECT",
-      formula: formData.formula,
-    });
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      const newId = generateAllocationId();
+      const timestamp = new Date().toLocaleTimeString();
+      setSuccessResult({ id: newId, timestamp });
+    }, 1000);
   };
 
   return (
@@ -60,158 +61,121 @@ export function LaunchRegistration() {
             <span className="text-[#ccff00]">AVAILABLE UNITS: 1,420 / 10,000</span>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Name */}
-              <div className="space-y-2">
-                <label className="block text-xs font-display text-[#64748b]">
-                  SUBJECT FULL NAME
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="DR. ALEX VANCE"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className="w-full bg-[#040406] border border-[#00f0ff]/30 p-3 font-mono text-sm text-[#f0f4f8] focus:border-[#00f0ff] focus:outline-none transition-colors"
-                />
-              </div>
-
-              {/* Email */}
-              <div className="space-y-2">
-                <label className="block text-xs font-display text-[#64748b]">
-                  COMMUNICATION ENDPOINT (EMAIL)
-                </label>
-                <input
-                  type="email"
-                  required
-                  placeholder="ALEX@LABORATORY.IO"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className="w-full bg-[#040406] border border-[#00f0ff]/30 p-3 font-mono text-sm text-[#f0f4f8] focus:border-[#00f0ff] focus:outline-none transition-colors"
-                />
-              </div>
+          {errorMessage && (
+            <div className="hud-border p-3 bg-[#1e0808] border-red-500 text-red-400 font-display text-[10px]">
+              ⚠️ {errorMessage}
             </div>
+          )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Preferred Formulation */}
+          {!successResult ? (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Email */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-display text-[#64748b]">
+                    COMMUNICATION ENDPOINT (EMAIL) *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="ALEX@LABORATORY.IO"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    className="w-full bg-[#040406] border border-[#00f0ff]/30 p-3 font-mono text-sm text-[#f0f4f8] focus:border-[#00f0ff] focus:outline-none"
+                  />
+                </div>
+
+                {/* Name */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-display text-[#64748b]">
+                    SUBJECT NAME (OPTIONAL)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="DR. ALEX VANCE"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    className="w-full bg-[#040406] border border-[#00f0ff]/30 p-3 font-mono text-sm text-[#f0f4f8] focus:border-[#00f0ff] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Flavor Selector */}
               <div className="space-y-2">
                 <label className="block text-xs font-display text-[#64748b]">
-                  PRIMARY FORMULATION SELECTION
+                  TARGET FLAVOR PREFERENCE
                 </label>
                 <select
-                  value={formData.formula}
+                  value={formData.flavor}
                   onChange={(e) =>
-                    setFormData({ ...formData, formula: e.target.value })
+                    setFormData({ ...formData, flavor: e.target.value })
                   }
-                  className="w-full bg-[#040406] border border-[#00f0ff]/30 p-3 font-mono text-sm text-[#f0f4f8] focus:border-[#00f0ff] focus:outline-none transition-colors"
+                  className="w-full bg-[#040406] border border-[#00f0ff]/30 p-3 font-mono text-sm text-[#f0f4f8] focus:border-[#00f0ff] focus:outline-none"
                 >
-                  {FORMULAS.map((fm) => (
-                    <option key={fm.id} value={fm.name}>
-                      {fm.code} // {fm.name}
+                  {FLAVOR_STATIONS.map((st) => (
+                    <option key={st.id} value={st.name}>
+                      {st.name} // {st.tagline}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* Priority Access Code */}
-              <div className="space-y-2">
-                <label className="block text-xs font-display text-[#64748b]">
-                  PRIORITY ACCESS CODE (OPTIONAL)
-                </label>
-                <input
-                  type="text"
-                  placeholder="LAB-ACCESS-2026"
-                  value={formData.priorityCode}
-                  onChange={(e) =>
-                    setFormData({ ...formData, priorityCode: e.target.value })
-                  }
-                  className="w-full bg-[#040406] border border-[#00f0ff]/30 p-3 font-mono text-sm text-[#f0f4f8] focus:border-[#00f0ff] focus:outline-none transition-colors"
-                />
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full py-4 bg-[#00f0ff] text-[#040406] font-display text-sm font-extrabold tracking-widest hover:bg-[#ccff00] transition-colors duration-300 shadow-[0_0_20px_rgba(0,240,255,0.4)]"
-            >
-              EXECUTE BATCH 01 ALLOCATION PROTOCOL
-            </button>
-          </form>
-        </div>
-      </div>
-
-      {/* Confirmation Modal */}
-      <AnimatePresence>
-        {allocationResult && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[#040406]/90 backdrop-blur-md flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="max-w-lg w-full hud-border p-8 bg-[#0a0c14] space-y-6 text-left relative"
-            >
+              {/* Submit Button */}
               <button
-                onClick={() => setAllocationResult(null)}
-                className="absolute top-4 right-4 text-xs font-display text-[#64748b] hover:text-[#00f0ff]"
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-4 bg-[#00f0ff] text-[#040406] font-display text-sm font-extrabold tracking-widest hover:bg-[#ccff00] transition-colors duration-300 shadow-[0_0_20px_rgba(0,240,255,0.4)] disabled:opacity-50"
               >
-                [CLOSE X]
+                {isSubmitting
+                  ? "CALIBRATING ALLOCATION PROTOCOL..."
+                  : "EXECUTE BATCH 01 ALLOCATION PROTOCOL"}
               </button>
-
-              <div className="space-y-2 border-b border-[#00f0ff]/20 pb-4">
-                <div className="text-[10px] font-display text-[#ccff00]">
-                  ✓ ALLOCATION PROTOCOL EXECUTED
-                </div>
-                <h3 className="font-display text-2xl font-black text-[#f0f4f8]">
-                  RESERVATION CONFIRMED
+            </form>
+          ) : (
+            <div className="space-y-6 text-center py-4">
+              <div className="w-14 h-14 rounded-full bg-[#00f0ff]/20 border border-[#00f0ff] flex items-center justify-center text-[#00f0ff] font-bold text-2xl mx-auto">
+                ✓
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-display text-3xl font-black text-[#f0f4f8]">
+                  STATE ACCESS CONFIRMED
                 </h3>
+                <p className="font-display text-sm text-[#ccff00]">
+                  “Your state is reserved. AER/0 will find you first.”
+                </p>
               </div>
 
-              <div className="hud-border p-4 bg-[#040406] space-y-3 font-mono text-xs text-[#64748b]">
+              <div className="hud-border p-4 bg-[#040406] space-y-2 font-mono text-xs text-[#64748b] max-w-md mx-auto text-left">
                 <div className="flex justify-between">
                   <span>ALLOCATION ID:</span>
                   <span className="text-[#00f0ff] font-bold">
-                    {allocationResult.id}
+                    {successResult.id}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>SUBJECT NAME:</span>
-                  <span className="text-[#f0f4f8]">{allocationResult.name}</span>
+                  <span>TARGET FLAVOR:</span>
+                  <span className="text-[#f0f4f8]">{formData.flavor}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>FORMULATION:</span>
-                  <span className="text-[#ccff00]">{allocationResult.formula}</span>
-                </div>
-                <div className="flex justify-between text-[10px] pt-2 border-t border-[#00f0ff]/10">
                   <span>TIMESTAMP:</span>
-                  <span>{allocationResult.timestamp}</span>
+                  <span>{successResult.timestamp}</span>
                 </div>
               </div>
 
-              <p className="text-xs text-[#64748b] font-sans leading-relaxed">
-                Your priority slot has been locked into the Batch 01 queue. Final shipping notification and dispatch telemetry will be transmitted via email.
-              </p>
-
               <button
-                onClick={() => setAllocationResult(null)}
-                className="w-full py-3 bg-[#00f0ff] text-[#040406] font-display text-xs font-bold tracking-widest hover:bg-[#ccff00] transition-colors"
+                onClick={() => setSuccessResult(null)}
+                className="px-8 py-3 bg-[#00f0ff] text-[#040406] font-display text-xs font-bold tracking-widest hover:bg-[#ccff00]"
               >
-                RETURN TO TELEMETRY
+                SUBMIT ANOTHER ALLOCATION
               </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          )}
+        </div>
+      </div>
     </section>
   );
 }

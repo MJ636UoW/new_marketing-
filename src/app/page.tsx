@@ -11,13 +11,23 @@ import { IngredientScience } from "@/components/ui/IngredientScience";
 import { FlavorSelection, FLAVOR_STATIONS, FlavorStation } from "@/components/ui/FlavorSelection";
 import { LaunchRegistration } from "@/components/ui/LaunchRegistration";
 import { Footer } from "@/components/ui/Footer";
+import { GlobalModals, ModalType } from "@/components/ui/GlobalModals";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeFlavor, setActiveFlavor] = useState<FlavorStation>(FLAVOR_STATIONS[0]);
+  const [activeModal, setActiveModal] = useState<ModalType>("none");
 
   const handleSelectFlavor = (flavor: FlavorStation) => {
     setActiveFlavor(flavor);
+  };
+
+  const handleOpenModal = (modal: ModalType) => {
+    setActiveModal(modal);
+  };
+
+  const handleCloseModal = () => {
+    setActiveModal("none");
   };
 
   return (
@@ -28,10 +38,10 @@ export default function Home() {
       {!isLoading && (
         <>
           {/* 2. Fixed Navigation Header */}
-          <Navbar />
+          <Navbar onOpenModal={handleOpenModal} />
 
           {/* 3. Full-Screen 3D Hero */}
-          <HeroSection />
+          <HeroSection onOpenModal={handleOpenModal} />
 
           {/* 4. Scroll-Controlled Cinematic 6-Act Timeline */}
           <ScrollCinematic />
@@ -55,7 +65,14 @@ export default function Home() {
           <LaunchRegistration />
 
           {/* 10. Footer */}
-          <Footer />
+          <Footer onOpenModal={handleOpenModal} />
+
+          {/* 11. Unified Global Modals Suite */}
+          <GlobalModals
+            activeModal={activeModal}
+            onClose={handleCloseModal}
+            defaultFlavor={activeFlavor.name}
+          />
         </>
       )}
     </main>
