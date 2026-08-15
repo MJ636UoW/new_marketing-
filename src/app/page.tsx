@@ -14,7 +14,7 @@ import { Footer } from "@/components/ui/Footer";
 import { GlobalModals, ModalType } from "@/components/ui/GlobalModals";
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(true);
   const [activeFlavor, setActiveFlavor] = useState<FlavorStation>(FLAVOR_STATIONS[0]);
   const [activeModal, setActiveModal] = useState<ModalType>("none");
 
@@ -32,8 +32,10 @@ export default function Home() {
 
   return (
     <main className="relative bg-[#040406] text-[#f0f4f8] min-h-screen overflow-x-hidden">
-      {/* 1. Full-screen Loading Sequence Overlay */}
-      {isLoading && <LoadingSequence onComplete={() => setIsLoading(false)} />}
+      {/* 1. Diagnostic Boot Loading Overlay */}
+      {showLoadingOverlay && (
+        <LoadingSequence onComplete={() => setShowLoadingOverlay(false)} />
+      )}
 
       {/* 2. Main Site Structure Always Mounted & Ready */}
       <Navbar onOpenModal={handleOpenModal} />
