@@ -2,9 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Scene3D } from "../3d/Scene3D";
+import dynamic from "next/dynamic";
 import { ModalType } from "./GlobalModals";
 import { MagneticButton } from "./MagneticButton";
+import { Polished3DFallback } from "../3d/Polished3DFallback";
+
+const Scene3D = dynamic(() => import("../3d/Scene3D").then((m) => m.Scene3D), {
+  ssr: false,
+  loading: () => <Polished3DFallback />,
+});
 
 interface HeroSectionProps {
   onOpenModal: (modal: ModalType) => void;
@@ -38,7 +44,6 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
       id="hero"
       className="relative w-full min-h-screen pt-24 pb-12 flex flex-col justify-between hud-grid overflow-hidden bg-[#040406] selection:bg-[#00f0ff] selection:text-[#040406]"
     >
-      {/* Subtle Floating Background Particles */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         {[...Array(20)].map((_, i) => (
           <motion.div
@@ -64,7 +69,6 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
         ))}
       </div>
 
-      {/* Cursor Reactive Cyan Backdrop Light */}
       <motion.div
         className="absolute w-[500px] h-[500px] rounded-full blur-[140px] bg-[#00f0ff]/20 pointer-events-none z-0"
         animate={{
@@ -79,9 +83,7 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
         }}
       />
 
-      {/* Top Telemetry Header */}
       <div className="max-w-7xl mx-auto w-full px-4 md:px-8 flex justify-between items-center z-10 font-display text-xs text-[#64748b]">
-        {/* Live Status Indicator */}
         <div className="hud-border px-3 py-1.5 flex items-center gap-2 bg-[#040406]/90 backdrop-blur-md">
           <span className="w-2 h-2 rounded-full bg-[#00f0ff] animate-ping" />
           <span className="text-[#00f0ff] font-bold tracking-widest text-[10px]">
@@ -91,7 +93,6 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
           <span className="text-[10px] text-[#64748b]">ATM: 3.1 BAR</span>
         </div>
 
-        {/* Brand Name Staggered Letter Reveal */}
         <div className="hidden sm:flex items-center gap-1 font-display font-extrabold tracking-widest text-lg text-[#f0f4f8]">
           {brandName.split("").map((char, index) => (
             <motion.span
@@ -107,11 +108,8 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
         </div>
       </div>
 
-      {/* Main Grid Content */}
       <div className="max-w-7xl mx-auto w-full px-4 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto z-10">
-        {/* Left Column: Masked Reveals & Magnetic CTAs */}
         <div className="lg:col-span-6 space-y-8">
-          {/* Kicker */}
           <div className="overflow-hidden">
             <motion.div
               initial={{ y: "100%", opacity: 0 }}
@@ -123,7 +121,6 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
             </motion.div>
           </div>
 
-          {/* Headline */}
           <div className="overflow-hidden space-y-1">
             <motion.h1
               initial={{ y: "100%", opacity: 0 }}
@@ -136,7 +133,6 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
             </motion.h1>
           </div>
 
-          {/* Supporting Text */}
           <div className="overflow-hidden">
             <motion.p
               initial={{ y: "100%", opacity: 0 }}
@@ -148,7 +144,6 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
             </motion.p>
           </div>
 
-          {/* Magnetic Desktop CTAs */}
           <div className="overflow-hidden pt-2">
             <motion.div
               initial={{ y: "100%", opacity: 0 }}
@@ -156,7 +151,6 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
               transition={{ duration: 0.9, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="flex flex-col sm:flex-row gap-4"
             >
-              {/* Magnetic Primary CTA */}
               <MagneticButton
                 onClick={() => onOpenModal("registration")}
                 className="hud-border px-8 py-4 bg-[#00f0ff] text-[#040406] font-display text-xs font-black tracking-widest hover:bg-[#ccff00] transition-colors duration-300 shadow-[0_0_25px_rgba(0,240,255,0.4)]"
@@ -164,7 +158,6 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
                 ENTER THE STATE
               </MagneticButton>
 
-              {/* Magnetic Secondary CTA */}
               <MagneticButton
                 onClick={handleSecondaryClick}
                 className="hud-border px-8 py-4 text-[#00f0ff] font-display text-xs font-bold tracking-widest hover:bg-[#00f0ff]/10 hover:text-[#f0f4f8] transition-all duration-300"
@@ -175,18 +168,16 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
           </div>
         </div>
 
-        {/* Right Column: 3D Bottle */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, delay: 0.2 }}
-          className="lg:col-span-6 h-[500px] sm:h-[620px] lg:h-[700px] relative w-full flex items-center justify-center"
+          className="lg:col-span-6 h-[500px] sm:h-[620px] lg:h-[700px] relative w-full flex items-center justify-center min-h-[400px]"
         >
           <Scene3D accentColor="#00f0ff" scale={1.3} />
         </motion.div>
       </div>
 
-      {/* Vertical Scroll Indicator */}
       <div className="max-w-7xl mx-auto w-full px-4 md:px-8 flex justify-between items-center text-[10px] font-display text-[#64748b] pt-6 z-10 border-t border-[#00f0ff]/10">
         <span>[RESTRICTED ALLOCATION // BATCH 01]</span>
 

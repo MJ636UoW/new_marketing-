@@ -2,10 +2,16 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
-import { ContactShadows, Html } from "@react-three/drei";
+import { ContactShadows } from "@react-three/drei";
 import { motion, AnimatePresence } from "framer-motion";
-import { Aer0Bottle } from "../3d/Aer0Bottle";
+import dynamic from "next/dynamic";
 import { INGREDIENTS } from "@/lib/constants";
+import { Polished3DFallback } from "../3d/Polished3DFallback";
+
+const Aer0Bottle = dynamic(() => import("../3d/Aer0Bottle").then((m) => m.Aer0Bottle), {
+  ssr: false,
+  loading: () => <Polished3DFallback />,
+});
 
 interface SystemPoint {
   id: string;
@@ -14,7 +20,7 @@ interface SystemPoint {
   tagline: string;
   description: string;
   scientificNote: string;
-  position: [number, number, number]; // 3D coordinates around bottle
+  position: [number, number, number];
   accent: "cyan" | "lime";
   hex: string;
 }
@@ -74,7 +80,6 @@ export function InsideSystem() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Escape Key Listener for Full Formula Modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isModalOpen) {
@@ -85,7 +90,6 @@ export function InsideSystem() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isModalOpen]);
 
-  // Focus Trapping when modal is open
   useEffect(() => {
     if (isModalOpen && modalRef.current) {
       modalRef.current.focus();
@@ -98,7 +102,6 @@ export function InsideSystem() {
       className="py-24 px-4 md:px-8 hud-grid relative bg-[#040406] overflow-hidden selection:bg-[#00f0ff] selection:text-[#040406]"
     >
       <div className="max-w-7xl mx-auto space-y-12">
-        {/* Section Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-[#00f0ff]/20 pb-6">
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 text-xs font-display text-[#00f0ff] tracking-widest border border-[#00f0ff]/20 px-3 py-1">
@@ -111,7 +114,6 @@ export function InsideSystem() {
             </h2>
           </div>
 
-          {/* VIEW FULL FORMULA BUTTON */}
           <button
             onClick={() => setIsModalOpen(true)}
             className="hud-border px-6 py-3 font-display text-xs font-black tracking-widest text-[#ccff00] border-[#ccff00]/40 hover:bg-[#ccff00] hover:text-[#040406] transition-all duration-300"
@@ -120,11 +122,8 @@ export function InsideSystem() {
           </button>
         </div>
 
-        {/* Main Interactive Stage: 3D Bottle + Floating System Nodes + Info Panel */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          {/* Left Column: Interactive 3D Stage with Floating Nodes */}
-          <div className="lg:col-span-7 h-[480px] sm:h-[580px] relative w-full hud-border bg-[#0a0c14]/80">
-            {/* R3F Canvas */}
+          <div className="lg:col-span-7 h-[480px] sm:h-[580px] relative w-full hud-border bg-[#0a0c14]/80 min-h-[400px]">
             <Canvas
               camera={{
                 position: [
@@ -161,7 +160,6 @@ export function InsideSystem() {
               />
             </Canvas>
 
-            {/* Interactive HTML Floating Points Layer */}
             <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
               {SYSTEM_POINTS.map((pt) => {
                 const isActive = activePoint.id === pt.id;
@@ -197,7 +195,6 @@ export function InsideSystem() {
             </div>
           </div>
 
-          {/* Right Column: Accessible Information Panel */}
           <div className="lg:col-span-5 space-y-6">
             <motion.div
               key={activePoint.id}
@@ -206,7 +203,6 @@ export function InsideSystem() {
               transition={{ duration: 0.4 }}
               className="hud-border p-8 space-y-6 bg-[#0a0c14] relative"
             >
-              {/* Header */}
               <div className="flex justify-between items-start border-b border-[#00f0ff]/20 pb-4">
                 <div>
                   <span className="text-[10px] font-display text-[#64748b]">
@@ -225,7 +221,6 @@ export function InsideSystem() {
                 />
               </div>
 
-              {/* Tagline & Short Explanation */}
               <div className="space-y-2">
                 <p className="font-display text-xs font-bold text-[#ccff00]">
                   {activePoint.tagline}
@@ -235,7 +230,6 @@ export function InsideSystem() {
                 </p>
               </div>
 
-              {/* Scientific Note */}
               <div className="hud-border p-4 bg-[#040406] space-y-1.5 border-l-2 border-l-[#00f0ff]">
                 <div className="text-[10px] font-display text-[#00f0ff]">
                   SCIENTIFIC NOTE:
@@ -245,7 +239,6 @@ export function InsideSystem() {
                 </p>
               </div>
 
-              {/* Tap/Hover Help Text */}
               <div className="text-[10px] font-display text-[#64748b] pt-2 flex items-center gap-2">
                 <span className="text-[#00f0ff]">*</span>
                 <span>
@@ -259,7 +252,6 @@ export function InsideSystem() {
         </div>
       </div>
 
-      {/* FULL FORMULA ACCESSIBLE MODAL */}
       <AnimatePresence>
         {isModalOpen && (
           <div
@@ -277,7 +269,6 @@ export function InsideSystem() {
               transition={{ duration: 0.3 }}
               className="max-w-3xl w-full hud-border p-8 md:p-12 bg-[#0a0c14] space-y-8 relative max-h-[90vh] overflow-y-auto my-auto"
             >
-              {/* Close Button */}
               <button
                 onClick={() => setIsModalOpen(false)}
                 aria-label="Close full formula modal"
@@ -286,7 +277,6 @@ export function InsideSystem() {
                 [CLOSE X]
               </button>
 
-              {/* Modal Header */}
               <div className="space-y-2 border-b border-[#00f0ff]/20 pb-4">
                 <div className="text-[10px] font-display text-[#00f0ff]">
                   FULL FORMULA DOSSIER // PHARMACEUTICAL SPEC
@@ -299,7 +289,6 @@ export function InsideSystem() {
                 </h3>
               </div>
 
-              {/* Ingredients List Grid */}
               <div className="space-y-6">
                 {INGREDIENTS.map((ing) => (
                   <div
@@ -329,7 +318,6 @@ export function InsideSystem() {
                 ))}
               </div>
 
-              {/* Modal Footer */}
               <div className="flex justify-between items-center pt-4 border-t border-[#00f0ff]/20 font-display text-xs">
                 <span className="text-[#64748b]">
                   PRESS [ESC] OR CLICK CLOSE TO RETURN
