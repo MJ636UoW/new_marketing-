@@ -1,7 +1,16 @@
 "use client";
 
 import React from "react";
-import { CinematicTimeline } from "../3d/CinematicTimeline";
+import dynamic from "next/dynamic";
+import { Polished3DFallback } from "../3d/Polished3DFallback";
+
+const CinematicTimeline = dynamic(
+  () => import("../3d/CinematicTimeline").then((m) => m.CinematicTimeline),
+  {
+    ssr: false,
+    loading: () => <Polished3DFallback />,
+  }
+);
 
 export function ScrollCinematic() {
   return (
