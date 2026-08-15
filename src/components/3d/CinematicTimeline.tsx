@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { Canvas } from "@react-three/fiber";
-import { ContactShadows } from "@react-three/drei";
 import { motion, useScroll, useVelocity, useSpring, AnimatePresence } from "framer-motion";
-import { CinematicBottle } from "./CinematicBottle";
+import { Aer0CinematicCanvas } from "./Aer0CinematicCanvas";
 
 interface CinematicTimelineProps {
   accentColor?: string;
@@ -57,7 +55,6 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
   const [currentSectionIdx, setCurrentSectionIdx] = useState(0);
   const [progressVal, setProgressVal] = useState(0);
   const [velocityDisplay, setVelocityDisplay] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -68,10 +65,6 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
   const smoothVelocity = useSpring(scrollVelocityRaw, { damping: 25, stiffness: 200 });
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-
     const unsubscribeProgress = scrollYProgress.on("change", (v) => {
       const val = typeof v === "number" && !isNaN(v) ? v : 0;
       setProgressVal(val);
@@ -91,7 +84,6 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
     });
 
     return () => {
-      window.removeEventListener("resize", checkMobile);
       unsubscribeProgress();
       unsubscribeVelocity();
     };
@@ -103,29 +95,13 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
     <div ref={containerRef} className="relative h-[600vh] w-full bg-[#040406]">
       {/* Sticky Fullscreen Canvas & Editorial Overlays */}
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden hud-grid">
-        {/* R3F Canvas Layer */}
+        {/* Native Three.js Canvas Layer */}
         <div className="absolute inset-0 z-0">
-          <Canvas
-            camera={{ position: [0, 0, 5.8], fov: 42 }}
-            dpr={[1, isMobile ? 1.5 : 2]}
-            gl={{ antialias: !isMobile, alpha: true }}
-          >
-            <ambientLight intensity={0.3} />
-            <CinematicBottle
-              accentColor={accentColor}
-              scrollProgress={progressVal}
-              scrollVelocity={velocityDisplay}
-              isMobile={isMobile}
-            />
-            <ContactShadows
-              position={[0, -2.45, 0]}
-              opacity={0.7}
-              scale={9}
-              blur={2.8}
-              far={4.5}
-              color={accentColor}
-            />
-          </Canvas>
+          <Aer0CinematicCanvas
+            accentColor={accentColor}
+            scrollProgress={progressVal}
+            scrollVelocity={velocityDisplay}
+          />
         </div>
 
         {/* Dynamic Speed Blur Overlay */}

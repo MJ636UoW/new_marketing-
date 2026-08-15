@@ -1,18 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Canvas } from "@react-three/fiber";
-import { ContactShadows } from "@react-three/drei";
 import { motion, AnimatePresence } from "framer-motion";
-import dynamic from "next/dynamic";
 import { INGREDIENTS } from "@/lib/constants";
-import { Polished3DFallback } from "../3d/Polished3DFallback";
-import { ClientOnly } from "./ClientOnly";
-
-const Aer0Bottle = dynamic(() => import("../3d/Aer0Bottle").then((m) => m.Aer0Bottle), {
-  ssr: false,
-  loading: () => <Polished3DFallback />,
-});
+import { Aer0HeroCanvas } from "../3d/Aer0HeroCanvas";
 
 interface SystemPoint {
   id: string;
@@ -125,43 +116,7 @@ export function InsideSystem() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 h-[480px] sm:h-[580px] relative w-full hud-border bg-[#0a0c14]/80 min-h-[400px]">
-            <ClientOnly fallback={<Polished3DFallback />}>
-              <Canvas
-                camera={{
-                  position: [
-                    activePoint.position[0] * 0.35,
-                    activePoint.position[1] * 0.2,
-                    5.6,
-                  ],
-                  fov: 42,
-                }}
-                dpr={[1, isMobile ? 1.5 : 2]}
-                gl={{ antialias: !isMobile, alpha: true }}
-              >
-                <ambientLight intensity={0.35} />
-                <directionalLight position={[5, 5, 5]} intensity={1.5} color="#ffffff" />
-                <directionalLight
-                  position={[-5, 3, -4]}
-                  intensity={3.5}
-                  color={activePoint.hex}
-                />
-
-                <Aer0Bottle
-                  accentColor={activePoint.hex}
-                  scale={1.2}
-                  isMobile={isMobile}
-                />
-
-                <ContactShadows
-                  position={[0, -2.45, 0]}
-                  opacity={0.65}
-                  scale={9}
-                  blur={2.8}
-                  far={4.5}
-                  color={activePoint.hex}
-                />
-              </Canvas>
-            </ClientOnly>
+            <Aer0HeroCanvas accentColor={activePoint.hex} scale={1.2} />
 
             <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
               {SYSTEM_POINTS.map((pt) => {
@@ -246,8 +201,8 @@ export function InsideSystem() {
                 <span className="text-[#00f0ff]">*</span>
                 <span>
                   {isMobile
-                    ? "TAP FLOATING POINTS TO SHIFT 3D CAMERA REGION"
-                    : "HOVER FLOATING POINTS TO SHIFT 3D CAMERA REGION"}
+                    ? "TAP FLOATING POINTS TO SHIFT VECTOR REGION"
+                    : "HOVER FLOATING POINTS TO SHIFT VECTOR REGION"}
                 </span>
               </div>
             </motion.div>
