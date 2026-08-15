@@ -60,15 +60,15 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
   const scrollVelocityRaw = useVelocity(scrollYProgress);
   const smoothVelocity = useSpring(scrollVelocityRaw, { damping: 25, stiffness: 200 });
 
-  // 1:1 Continuous Opacity Transformations for zero dead gaps
-  const sec1Opacity = useTransform(scrollYProgress, [0.0, 0.1, 0.28, 0.38], [0, 1, 1, 0]);
-  const sec1Y = useTransform(scrollYProgress, [0.0, 0.1, 0.28, 0.38], [40, 0, 0, -40]);
+  // 1:1 Overlapping Gapless Opacity & Motion Transforms
+  const sec1Opacity = useTransform(scrollYProgress, [0.0, 0.28, 0.36], [1, 1, 0]);
+  const sec1Y = useTransform(scrollYProgress, [0.0, 0.28, 0.36], [0, 0, -40]);
 
-  const sec2Opacity = useTransform(scrollYProgress, [0.32, 0.42, 0.60, 0.70], [0, 1, 1, 0]);
-  const sec2Y = useTransform(scrollYProgress, [0.32, 0.42, 0.60, 0.70], [40, 0, 0, -40]);
+  const sec2Opacity = useTransform(scrollYProgress, [0.30, 0.38, 0.62, 0.70], [0, 1, 1, 0]);
+  const sec2Y = useTransform(scrollYProgress, [0.30, 0.38, 0.62, 0.70], [40, 0, 0, -40]);
 
-  const sec3Opacity = useTransform(scrollYProgress, [0.65, 0.75, 0.92, 1.0], [0, 1, 1, 1]);
-  const sec3Y = useTransform(scrollYProgress, [0.65, 0.75, 0.92, 1.0], [40, 0, 0, 0]);
+  const sec3Opacity = useTransform(scrollYProgress, [0.64, 0.72, 1.0], [0, 1, 1]);
+  const sec3Y = useTransform(scrollYProgress, [0.64, 0.72, 1.0], [40, 0, 0]);
 
   useEffect(() => {
     const unsubscribeProgress = scrollYProgress.on("change", (v) => {
@@ -90,7 +90,7 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
   const activeIndex = progressVal < 0.33 ? 0 : progressVal < 0.66 ? 1 : 2;
 
   return (
-    <div ref={containerRef} className="relative h-[240vh] w-full bg-[#040406]">
+    <div ref={containerRef} className="relative h-[180vh] w-full bg-[#040406]">
       {/* Sticky Fullscreen Canvas & Editorial Overlays */}
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden hud-grid">
         {/* Native Three.js 3D Canvas Layer */}
@@ -114,17 +114,17 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
 
         {/* Ghosted Background Telemetry Lines & Annotations */}
         <div className="absolute inset-0 pointer-events-none z-10 p-8 md:p-16 flex flex-col justify-between select-none">
-          <div className="flex justify-between items-center text-[10px] font-display text-[#64748b]/40">
+          <div className="flex justify-between items-center text-[10px] font-display text-[#64748b]/50">
             <div>[LAT: 35.6762° N // LON: 139.6503° E]</div>
             <div>[SPECTRAL DENSITY: 1.028 g/cm³]</div>
           </div>
-          <div className="flex justify-between items-center text-[10px] font-display text-[#64748b]/40">
+          <div className="flex justify-between items-center text-[10px] font-display text-[#64748b]/50">
             <div>+ CROSSHAIR RETICLE 04</div>
             <div>[CORE TRANSMISSION: 92%]</div>
           </div>
         </div>
 
-        {/* Continuous Editorial Overlay Layers (1:1 Synchronized) */}
+        {/* Continuous Overlapping Editorial Overlay Layers (Zero Gap) */}
         <div className="absolute inset-0 pointer-events-none z-20 max-w-7xl mx-auto w-full px-6 md:px-12 flex items-center">
           {/* SECTION 01 */}
           <motion.div
@@ -140,9 +140,9 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
             <p className="text-base sm:text-lg text-[#64748b] leading-relaxed font-sans max-w-lg">
               {EDITORIAL_SECTIONS[0].text}
             </p>
-            <div className="flex flex-wrap gap-4 pt-4 border-t border-[#00f0ff]/15 text-[10px] font-display text-[#64748b]/60">
+            <div className="flex flex-wrap gap-4 pt-4 border-t border-[#00f0ff]/15 text-[10px] font-display text-[#64748b]/80">
               {EDITORIAL_SECTIONS[0].annotations.map((ann, i) => (
-                <span key={i} className="hud-border px-2.5 py-1 bg-[#040406]/60">
+                <span key={i} className="hud-border px-2.5 py-1 bg-[#040406]/80">
                   {ann}
                 </span>
               ))}
@@ -163,9 +163,9 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
             <p className="text-base sm:text-lg text-[#64748b] leading-relaxed font-sans max-w-lg ml-auto">
               {EDITORIAL_SECTIONS[1].text}
             </p>
-            <div className="flex flex-wrap gap-4 pt-4 border-t border-[#00f0ff]/15 text-[10px] font-display text-[#64748b]/60 justify-end">
+            <div className="flex flex-wrap gap-4 pt-4 border-t border-[#00f0ff]/15 text-[10px] font-display text-[#64748b]/80 justify-end">
               {EDITORIAL_SECTIONS[1].annotations.map((ann, i) => (
-                <span key={i} className="hud-border px-2.5 py-1 bg-[#040406]/60">
+                <span key={i} className="hud-border px-2.5 py-1 bg-[#040406]/80">
                   {ann}
                 </span>
               ))}
@@ -186,9 +186,9 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
             <p className="text-base sm:text-lg text-[#64748b] leading-relaxed font-sans max-w-lg">
               {EDITORIAL_SECTIONS[2].text}
             </p>
-            <div className="flex flex-wrap gap-4 pt-4 border-t border-[#00f0ff]/15 text-[10px] font-display text-[#64748b]/60">
+            <div className="flex flex-wrap gap-4 pt-4 border-t border-[#00f0ff]/15 text-[10px] font-display text-[#64748b]/80">
               {EDITORIAL_SECTIONS[2].annotations.map((ann, i) => (
-                <span key={i} className="hud-border px-2.5 py-1 bg-[#040406]/60">
+                <span key={i} className="hud-border px-2.5 py-1 bg-[#040406]/80">
                   {ann}
                 </span>
               ))}
