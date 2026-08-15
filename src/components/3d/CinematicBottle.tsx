@@ -2,7 +2,6 @@
 
 import React, { useRef, useMemo, useEffect, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Text } from "@react-three/drei";
 import * as THREE from "three";
 
 interface CinematicBottleProps {
@@ -22,7 +21,7 @@ export function CinematicBottle({
   const capRef = useRef<THREE.Group>(null!);
   const shellRef = useRef<THREE.Mesh>(null!);
   const liquidRef = useRef<THREE.Mesh>(null!);
-  const labelRef = useRef<THREE.Group>(null!);
+  const labelRef = useRef<THREE.Mesh>(null!);
   const cyanRingRef = useRef<THREE.Mesh>(null!);
   const innerParticlesRef = useRef<THREE.Points>(null!);
   const atmosphericParticlesRef = useRef<THREE.Points>(null!);
@@ -100,13 +99,32 @@ export function CinematicBottle({
     return pts;
   }, []);
 
-  const targetColor = useMemo(() => new THREE.Color(accentColor), [accentColor]);
+  const brandTexture = useMemo(() => {
+    if (typeof document === "undefined") return null;
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 256;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.clearRect(0, 0, 512, 256);
+      ctx.font = "900 52px Orbitron, sans-serif";
+      ctx.fillStyle = "#f0f4f8";
+      ctx.textAlign = "center";
+      ctx.fillText("AER / 0", 256, 110);
+
+      ctx.font = "bold 20px Inter, sans-serif";
+      ctx.fillStyle = accentColor;
+      ctx.fillText("CINEMATIC TIMELINE", 256, 160);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  }, [accentColor]);
 
   useFrame((state) => {
     if (!groupRef.current) return;
     const time = state.clock.getElapsedTime();
 
-    // If reduced motion is enabled, show static bottle without camera/object animation
     if (reducedMotion) {
       camera.position.set(0, 0, 5.8);
       camera.lookAt(0, 0.1, 0);
@@ -254,27 +272,12 @@ export function CinematicBottle({
         <meshBasicMaterial color={accentColor} />
       </mesh>
 
-      <group ref={labelRef} position={[0, 0.0, 0.72]}>
-        <Text
-          fontSize={0.22}
-          letterSpacing={0.24}
-          color="#f0f4f8"
-          anchorX="center"
-          anchorY="middle"
-        >
-          AER / 0
-        </Text>
-        <Text
-          position={[0, -0.16, 0]}
-          fontSize={0.075}
-          letterSpacing={0.3}
-          color={accentColor}
-          anchorX="center"
-          anchorY="middle"
-        >
-          CINEMATIC TIMELINE
-        </Text>
-      </group>
+      {brandTexture && (
+        <mesh ref={labelRef} position={[0, 0.0, 0.73]}>
+          <planeGeometry args={[1.3, 0.65]} />
+          <meshBasicMaterial map={brandTexture} transparent opacity={0.95} depthWrite={false} />
+        </mesh>
+      )}
 
       <group ref={capRef} position={[0, 2.05, 0]}>
         <mesh position={[0, 0.15, 0]}>

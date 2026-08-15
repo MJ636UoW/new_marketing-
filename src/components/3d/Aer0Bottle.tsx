@@ -1,13 +1,11 @@
 "use client";
 
-import React, { useRef, useMemo } from "react";
-import { useFrame } from "@react-three/fiber";
-import { Text } from "@react-three/drei";
+import React, { useRef, useMemo, useEffect, useState } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 interface Aer0BottleProps {
   accentColor?: string;
-  rotationSpeed?: number;
   interactiveMouse?: { x: number; y: number };
   scrollProgress?: number;
   scale?: number;
@@ -17,41 +15,44 @@ interface Aer0BottleProps {
 
 export function Aer0Bottle({
   accentColor = "#00f0ff",
-  rotationSpeed = 0.004,
   interactiveMouse = { x: 0, y: 0 },
   scrollProgress = 0,
-  scale = 1.0,
+  scale = 1.15,
   isMobile = false,
   reducedMotion = false,
 }: Aer0BottleProps) {
   const groupRef = useRef<THREE.Group>(null!);
   const liquidCoreRef = useRef<THREE.Mesh>(null!);
-  const particlesRef = useRef<THREE.Points>(null!);
   const cyanRingRef = useRef<THREE.Mesh>(null!);
   const cursorLightRef = useRef<THREE.PointLight>(null!);
+  const particlesRef = useRef<THREE.Points>(null!);
+
+  const { camera } = useThree();
 
   const particleCount = isMobile ? 45 : 160;
 
+  // Internal Suspended Carbonation Micro-Particles
   const [positions, speeds, offsets] = useMemo(() => {
     const pos = new Float32Array(particleCount * 3);
     const spd = new Float32Array(particleCount);
     const off = new Float32Array(particleCount);
 
     for (let i = 0; i < particleCount; i++) {
-      const r = 0.15 + Math.random() * 0.48;
+      const r = 0.15 + Math.random() * 0.45;
       const theta = Math.random() * Math.PI * 2;
-      const y = -1.5 + Math.random() * 2.0;
+      const y = -1.5 + Math.random() * 1.9;
 
       pos[i * 3] = Math.cos(theta) * r;
       pos[i * 3 + 1] = y;
       pos[i * 3 + 2] = Math.sin(theta) * r;
 
-      spd[i] = 0.003 + Math.random() * 0.008;
+      spd[i] = 0.005 + Math.random() * 0.012;
       off[i] = Math.random() * Math.PI * 2;
     }
     return [pos, spd, off];
   }, [particleCount]);
 
+  // Sculptural Asymmetric Profile Vector Points
   const glassPoints = useMemo(() => {
     const pts: THREE.Vector2[] = [];
     pts.push(new THREE.Vector2(0.0, -1.8));
@@ -80,58 +81,62 @@ export function Aer0Bottle({
 
   const targetColor = useMemo(() => new THREE.Color(accentColor), [accentColor]);
 
-  useFrame((state, delta) => {
-    if (!groupRef.current) return;
+  // Procedural Canvas Texture for Brand Wordmark (Zero Drei dependency, 100% stable)
+  const brandTexture = useMemo(() => {
+    if (typeof document === "undefined") return null;
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 256;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.clearRect(0, 0, 512, 256);
+      ctx.font = "900 52px Orbitron, sans-serif";
+      ctx.fillStyle = "#f0f4f8";
+      ctx.textAlign = "center";
+      ctx.fillText("AER / 0", 256, 110);
+
+      ctx.font = "bold 20px Inter, sans-serif";
+      ctx.fillStyle = accentColor;
+      ctx.fillText("STATE ACCELERATOR", 256, 160);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  }, [accentColor]);
+
+  useFrame((state) => {
+    if (!groupRef.current || reducedMotion) return;
+
     const time = state.clock.getElapsedTime();
 
-    if (!reducedMotion) {
-      groupRef.current.rotation.y += rotationSpeed + scrollProgress * 0.008;
-    }
+    // Floating breathing motion
+    const floatY = Math.sin(time * 1.4) * 0.08;
+    const breathScale = 1 + Math.sin(time * 2.2) * 0.015;
 
-    const targetRotX = interactiveMouse.y * 0.25 + scrollProgress * Math.PI * 0.2;
-    const targetRotZ = -interactiveMouse.x * 0.25;
+    groupRef.current.position.y = floatY;
+    groupRef.current.scale.setScalar(scale * breathScale);
 
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(
-      groupRef.current.rotation.x,
-      targetRotX,
-      0.05
-    );
-    groupRef.current.rotation.z = THREE.MathUtils.lerp(
-      groupRef.current.rotation.z,
-      targetRotZ,
-      0.05
-    );
+    // Mouse tilt interaction
+    const targetRotX = interactiveMouse.y * 0.25;
+    const targetRotY = time * 0.35 + interactiveMouse.x * 0.35;
 
-    if (!reducedMotion) {
-      groupRef.current.position.y = Math.sin(time * 1.2) * 0.08 + 0.15;
-    }
+    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRotX, 0.05);
+    groupRef.current.rotation.y = targetRotY;
 
+    // Liquid core breathing emission
     if (liquidCoreRef.current) {
       const mat = liquidCoreRef.current.material as THREE.MeshStandardMaterial;
       mat.emissive.lerp(targetColor, 0.08);
-      const pulse = 0.75 + Math.sin(time * 2.0) * 0.15;
-      mat.emissiveIntensity = pulse;
+      mat.emissiveIntensity = 0.75 + Math.sin(time * 2.8) * 0.25;
     }
 
-    if (cyanRingRef.current) {
-      const ringMat = cyanRingRef.current.material as THREE.MeshBasicMaterial;
-      ringMat.color.lerp(targetColor, 0.1);
-    }
-
-    // Tiny cursor-reactive light smooth tracking on glass surface
+    // Cursor tracking point light
     if (cursorLightRef.current) {
-      cursorLightRef.current.position.x = THREE.MathUtils.lerp(
-        cursorLightRef.current.position.x,
-        interactiveMouse.x * 2.5,
-        0.1
-      );
-      cursorLightRef.current.position.y = THREE.MathUtils.lerp(
-        cursorLightRef.current.position.y,
-        interactiveMouse.y * 2.5,
-        0.1
-      );
+      cursorLightRef.current.position.x = interactiveMouse.x * 2.2;
+      cursorLightRef.current.position.y = interactiveMouse.y * 2.2;
     }
 
+    // Particle drift inside glowing core
     if (particlesRef.current) {
       const geo = particlesRef.current.geometry;
       const posAttr = geo.attributes.position as THREE.BufferAttribute;
@@ -140,8 +145,7 @@ export function Aer0Bottle({
       for (let i = 0; i < particleCount; i++) {
         array[i * 3 + 1] += speeds[i];
         const phase = time * 1.5 + offsets[i];
-        array[i * 3] += Math.sin(phase) * 0.001;
-        array[i * 3 + 2] += Math.cos(phase) * 0.001;
+        array[i * 3] += Math.sin(phase) * 0.0008;
 
         if (array[i * 3 + 1] > 0.42) {
           array[i * 3 + 1] = -1.65;
@@ -152,17 +156,28 @@ export function Aer0Bottle({
   });
 
   return (
-    <group ref={groupRef} scale={[scale, scale, scale]} position={[0, 0.15, 0]}>
-      {/* Tiny cursor-reactive light on bottle surface */}
+    <group ref={groupRef} position={[0, 0, 0]} scale={scale}>
+      {/* Studio Lights */}
+      <directionalLight
+        position={[-4, 4, -3]}
+        intensity={3.2}
+        color={accentColor}
+      />
+      <pointLight
+        position={[0, 0, 0]}
+        intensity={1.6}
+        color="#ccff00"
+        distance={3.5}
+      />
       <pointLight
         ref={cursorLightRef}
-        position={[0, 0, 2.2]}
-        intensity={1.6}
+        position={[0, 0, 2]}
+        intensity={2.5}
         color={accentColor}
-        distance={3.2}
+        distance={4}
       />
 
-      {/* Outer Transparent Glass Bottle */}
+      {/* Transparent Polymer Shell */}
       <mesh castShadow receiveShadow position={[0, 0, 0]}>
         <latheGeometry args={[glassPoints, 64]} />
         <meshPhysicalMaterial
@@ -198,28 +213,13 @@ export function Aer0Bottle({
         <meshBasicMaterial color={accentColor} />
       </mesh>
 
-      {/* Brand Wordmark */}
-      <group position={[0, 0.0, 0.72]}>
-        <Text
-          fontSize={0.22}
-          letterSpacing={0.24}
-          color="#f0f4f8"
-          anchorX="center"
-          anchorY="middle"
-        >
-          AER / 0
-        </Text>
-        <Text
-          position={[0, -0.16, 0]}
-          fontSize={0.075}
-          letterSpacing={0.3}
-          color={accentColor}
-          anchorX="center"
-          anchorY="middle"
-        >
-          STATE ACCELERATOR
-        </Text>
-      </group>
+      {/* Brand Wordmark Mesh */}
+      {brandTexture && (
+        <mesh position={[0, 0.0, 0.73]}>
+          <planeGeometry args={[1.3, 0.65]} />
+          <meshBasicMaterial map={brandTexture} transparent opacity={0.95} depthWrite={false} />
+        </mesh>
+      )}
 
       {/* Metallic Cap */}
       <group position={[0, 2.05, 0]}>
