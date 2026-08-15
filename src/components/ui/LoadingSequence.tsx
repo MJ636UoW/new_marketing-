@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface LoadingSequenceProps {
@@ -19,25 +19,46 @@ export function LoadingSequence({ onComplete }: LoadingSequenceProps) {
   const [progress, setProgress] = useState(0);
   const [currentLog, setCurrentLog] = useState(0);
   const [isDone, setIsDone] = useState(false);
+  const onCompleteRef = useRef(onComplete);
 
   useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  useEffect(() => {
+    // Fast reliable loading sequence timer (1.0 sec)
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(timer);
           setTimeout(() => {
             setIsDone(true);
-            setTimeout(onComplete, 600);
-          }, 300);
+            setTimeout(() => {
+              if (onCompleteRef.current) {
+                onCompleteRef.current();
+              }
+            }, 500);
+          }, 200);
           return 100;
         }
-        const next = prev + Math.floor(Math.random() * 8) + 4;
-        return Math.min(next, 100);
+        return prev + 10;
       });
-    }, 90);
+    }, 60);
 
-    return () => clearInterval(timer);
-  }, [onComplete]);
+    // Safety fallback timeout after 1.8 seconds max to guarantee page opens
+    const safetyTimeout = setTimeout(() => {
+      clearInterval(timer);
+      setIsDone(true);
+      if (onCompleteRef.current) {
+        onCompleteRef.current();
+      }
+    }, 1800);
+
+    return () => {
+      clearInterval(timer);
+      clearTimeout(safetyTimeout);
+    };
+  }, []);
 
   useEffect(() => {
     const logIndex = Math.min(
@@ -52,7 +73,7 @@ export function LoadingSequence({ onComplete }: LoadingSequenceProps) {
       {!isDone && (
         <motion.div
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.6 } }}
+          exit={{ opacity: 0, transition: { duration: 0.5 } }}
           className="fixed inset-0 z-50 bg-[#040406] hud-grid flex flex-col justify-between p-6 md:p-12 selection:bg-[#00f0ff] selection:text-[#040406]"
         >
           {/* Top Status Header */}
@@ -68,13 +89,9 @@ export function LoadingSequence({ onComplete }: LoadingSequenceProps) {
           <div className="max-w-xl mx-auto w-full flex flex-col items-center justify-center space-y-8 my-auto">
             {/* AER/0 Branding */}
             <div className="text-center space-y-2">
-              <motion.h1
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="font-display text-5xl md:text-7xl font-extrabold tracking-widest text-[#f0f4f8]"
-              >
+              <h1 className="font-display text-5xl md:text-7xl font-extrabold tracking-widest text-[#f0f4f8]">
                 AER<span className="text-[#00f0ff] text-glow-cyan">/0</span>
-              </motion.h1>
+              </h1>
               <p className="font-display text-xs text-[#ccff00] tracking-widest">
                 CHANGE YOUR STATE
               </p>
@@ -92,8 +109,8 @@ export function LoadingSequence({ onComplete }: LoadingSequenceProps) {
 
               {/* Progress Bar Container */}
               <div className="w-full h-1.5 bg-[#0a0c14] border border-[#00f0ff]/30 p-0.5 relative">
-                <motion.div
-                  className="h-full bg-gradient-to-r from-[#00f0ff] to-[#ccff00]"
+                <div
+                  className="h-full bg-gradient-to-r from-[#00f0ff] to-[#ccff00] transition-all duration-100 ease-out"
                   style={{ width: `${progress}%` }}
                 />
               </div>

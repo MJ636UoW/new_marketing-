@@ -32,49 +32,29 @@ export default function Home() {
 
   return (
     <main className="relative bg-[#040406] text-[#f0f4f8] min-h-screen overflow-x-hidden">
-      {/* 1. Full-screen Loading Sequence */}
-      <LoadingSequence onComplete={() => setIsLoading(false)} />
+      {/* 1. Full-screen Loading Sequence Overlay */}
+      {isLoading && <LoadingSequence onComplete={() => setIsLoading(false)} />}
 
-      {!isLoading && (
-        <>
-          {/* 2. Fixed Navigation Header */}
-          <Navbar onOpenModal={handleOpenModal} />
+      {/* 2. Main Site Structure Always Mounted & Ready */}
+      <Navbar onOpenModal={handleOpenModal} />
+      <HeroSection onOpenModal={handleOpenModal} />
+      <ScrollCinematic />
+      <ProductStory />
+      <InsideSystem />
+      <IngredientScience />
+      <FlavorSelection
+        activeFlavor={activeFlavor}
+        onSelectFlavor={handleSelectFlavor}
+      />
+      <LaunchRegistration />
+      <Footer onOpenModal={handleOpenModal} />
 
-          {/* 3. Full-Screen 3D Hero */}
-          <HeroSection onOpenModal={handleOpenModal} />
-
-          {/* 4. Scroll-Controlled Cinematic 6-Act Timeline */}
-          <ScrollCinematic />
-
-          {/* 5. Product Story Sections ("Change Your State") */}
-          <ProductStory />
-
-          {/* 6. Interactive Inside The System Section */}
-          <InsideSystem />
-
-          {/* 7. Ingredient Science Section */}
-          <IngredientScience />
-
-          {/* 8. CHOOSE YOUR STATE (Flavor Stations Section) */}
-          <FlavorSelection
-            activeFlavor={activeFlavor}
-            onSelectFlavor={handleSelectFlavor}
-          />
-
-          {/* 9. Launch Registration Section */}
-          <LaunchRegistration />
-
-          {/* 10. Footer */}
-          <Footer onOpenModal={handleOpenModal} />
-
-          {/* 11. Unified Global Modals Suite */}
-          <GlobalModals
-            activeModal={activeModal}
-            onClose={handleCloseModal}
-            defaultFlavor={activeFlavor.name}
-          />
-        </>
-      )}
+      {/* 3. Global Modals Suite */}
+      <GlobalModals
+        activeModal={activeModal}
+        onClose={handleCloseModal}
+        defaultFlavor={activeFlavor.name}
+      />
     </main>
   );
 }
