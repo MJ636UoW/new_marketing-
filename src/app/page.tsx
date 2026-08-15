@@ -10,23 +10,14 @@ import { IngredientScience } from "@/components/ui/IngredientScience";
 import { FlavorSelection } from "@/components/ui/FlavorSelection";
 import { LaunchRegistration } from "@/components/ui/LaunchRegistration";
 import { Footer } from "@/components/ui/Footer";
-import { PRODUCT_STATES, FORMULAS, ProductState, Formula } from "@/lib/constants";
+import { FORMULAS, Formula } from "@/lib/constants";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
-  const [activeState, setActiveState] = useState<ProductState>(PRODUCT_STATES[0]);
   const [activeFormula, setActiveFormula] = useState<Formula>(FORMULAS[0]);
 
-  // Sync formula selection with active state accent color
   const handleFormulaSelect = (formula: Formula) => {
     setActiveFormula(formula);
-    // Find matching state or update color accent
-    const matchingState = PRODUCT_STATES.find(
-      (s) => s.accent === formula.accent
-    );
-    if (matchingState) {
-      setActiveState(matchingState);
-    }
   };
 
   return (
@@ -40,12 +31,9 @@ export default function Home() {
           <Navbar />
 
           {/* 3. Full-Screen 3D Hero */}
-          <HeroSection
-            activeState={activeState}
-            onStateSelect={setActiveState}
-          />
+          <HeroSection />
 
-          {/* 4. Scroll-Controlled Cinematic Product Animation */}
+          {/* 4. Scroll-Controlled Cinematic 6-Act Timeline */}
           <ScrollCinematic />
 
           {/* 5. Product Story Sections ("Change Your State") */}

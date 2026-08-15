@@ -1,188 +1,389 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Scene3D } from "../3d/Scene3D";
-import { PRODUCT_STATES, ProductState } from "@/lib/constants";
+import { generateAllocationId } from "@/lib/utils";
+import { FORMULAS } from "@/lib/constants";
 
 interface HeroSectionProps {
-  activeState: ProductState;
-  onStateSelect: (state: ProductState) => void;
+  onOpenReserve?: () => void;
 }
 
-export function HeroSection({ activeState, onStateSelect }: HeroSectionProps) {
+export function HeroSection({ onOpenReserve }: HeroSectionProps) {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    formula: FORMULAS[0].name,
+  });
+
+  const [allocationResult, setAllocationResult] = useState<{
+    id: string;
+    timestamp: string;
+    name: string;
+    formula: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 40;
+      const y = (e.clientY / window.innerHeight - 0.5) * 40;
+      setMousePos({ x, y });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  const handleModalSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.email) return;
+
+    const newId = generateAllocationId();
+    const timestamp = new Date().toISOString();
+
+    setAllocationResult({
+      id: newId,
+      timestamp,
+      name: formData.name || "SUBJECT 01",
+      formula: formData.formula,
+    });
+  };
+
+  const handlePrimaryClick = () => {
+    if (onOpenReserve) {
+      onOpenReserve();
+    } else {
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleSecondaryClick = () => {
+    const storySection = document.getElementById("story");
+    if (storySection) {
+      storySection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const brandName = "AER/0";
+
   return (
     <section
       id="hero"
-      className="relative w-full min-h-screen pt-24 pb-12 flex flex-col justify-between hud-grid overflow-hidden selection:bg-[#00f0ff] selection:text-[#040406]"
+      className="relative w-full min-h-screen pt-24 pb-12 flex flex-col justify-between hud-grid overflow-hidden bg-[#040406] selection:bg-[#00f0ff] selection:text-[#040406]"
     >
-      {/* Background Decorative Telemetry Crosshairs */}
-      <div className="absolute top-28 left-8 text-[10px] font-display text-[#64748b]/40 pointer-events-none hidden md:block">
-        <div>[LAT: 35.6762° N // LON: 139.6503° E]</div>
-        <div>SYS_STATUS: CALIBRATED</div>
+      {/* Subtle Atmospheric Floating Particles in Hero Background */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-[#00f0ff]"
+            style={{
+              width: Math.random() * 3 + 1 + "px",
+              height: Math.random() * 3 + 1 + "px",
+              top: Math.random() * 100 + "%",
+              left: Math.random() * 100 + "%",
+              opacity: Math.random() * 0.4 + 0.1,
+            }}
+            animate={{
+              y: [0, -40, 0],
+              opacity: [0.1, 0.5, 0.1],
+            }}
+            transition={{
+              duration: Math.random() * 6 + 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
       </div>
-      <div className="absolute top-28 right-8 text-[10px] font-display text-[#64748b]/40 pointer-events-none hidden md:block text-right">
-        <div>ATMOSPHERIC PRESS: 3.1 BAR</div>
-        <div>MOLECULAR DENSITY: 1.028 g/cm³</div>
+
+      {/* Cyan Light Glow Disk Reacting to Pointer Movement */}
+      <motion.div
+        className="absolute w-[500px] h-[500px] rounded-full blur-[140px] bg-[#00f0ff]/20 pointer-events-none z-0"
+        animate={{
+          x: mousePos.x * 2.5,
+          y: mousePos.y * 2.5,
+        }}
+        transition={{ type: "spring", damping: 30, stiffness: 200 }}
+        style={{
+          top: "30%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      />
+
+      {/* Top HUD Telemetry Info Bar */}
+      <div className="max-w-7xl mx-auto w-full px-4 md:px-8 flex justify-between items-center z-10 font-display text-xs text-[#64748b]">
+        {/* Live Status Indicator */}
+        <div className="hud-border px-3 py-1.5 flex items-center gap-2 bg-[#040406]/90 backdrop-blur-md">
+          <span className="w-2 h-2 rounded-full bg-[#00f0ff] animate-ping" />
+          <span className="text-[#00f0ff] font-bold tracking-widest text-[10px]">
+            SYSTEM ACTIVE
+          </span>
+          <span className="text-[#64748b]/40">|</span>
+          <span className="text-[10px] text-[#64748b]">ATM: 3.1 BAR</span>
+        </div>
+
+        {/* Product Name Letter-by-Letter Display */}
+        <div className="hidden sm:flex items-center gap-1 font-display font-extrabold tracking-widest text-lg text-[#f0f4f8]">
+          {brandName.split("").map((char, index) => (
+            <motion.span
+              key={index}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.12 + 0.3, duration: 0.5 }}
+              className={char === "/" ? "text-[#00f0ff]" : ""}
+            >
+              {char}
+            </motion.span>
+          ))}
+        </div>
       </div>
 
       {/* Main Grid Content */}
       <div className="max-w-7xl mx-auto w-full px-4 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto z-10">
-        {/* Left Column: Hero Text & Controls */}
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="lg:col-span-6 space-y-6"
-        >
-          {/* Badge */}
-          <div className="inline-flex items-center gap-3 hud-border px-3 py-1 text-[11px] font-display">
-            <span
-              className="w-2 h-2 rounded-full animate-ping"
-              style={{ backgroundColor: activeState.hex }}
-            />
-            <span className="text-[#64748b]">FORMULATION CODE:</span>
-            <span style={{ color: activeState.hex }} className="font-bold">
-              {activeState.code}
-            </span>
+        {/* Left Column: Mysterious Hero Copy with Masked Reveals */}
+        <div className="lg:col-span-6 space-y-8">
+          {/* Kicker */}
+          <div className="overflow-hidden">
+            <motion.div
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: "0%", opacity: 1 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="inline-flex items-center gap-2 text-xs font-display text-[#ccff00] tracking-widest border-l-2 border-[#ccff00] pl-3 py-0.5"
+            >
+              <span>A NEW STATE OF REFRESHMENT</span>
+            </motion.div>
           </div>
 
-          {/* Main Title */}
-          <div className="space-y-2">
-            <h1 className="font-display text-4xl sm:text-6xl xl:text-7xl font-black tracking-tight text-[#f0f4f8] uppercase leading-none">
-              CHANGE YOUR <br />
-              <span
-                className="transition-colors duration-500"
-                style={{ color: activeState.hex }}
+          {/* Headline (Masked Reveal) */}
+          <div className="overflow-hidden space-y-1">
+            <motion.h1
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: "0%", opacity: 1 }}
+              transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="font-display text-5xl sm:text-7xl xl:text-8xl font-black tracking-tight text-[#f0f4f8] uppercase leading-none"
+            >
+              CHANGE <br />
+              <span className="text-[#00f0ff] text-glow-cyan">YOUR STATE.</span>
+            </motion.h1>
+          </div>
+
+          {/* Supporting Text */}
+          <div className="overflow-hidden">
+            <motion.p
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: "0%", opacity: 1 }}
+              transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="text-sm md:text-base text-[#64748b] leading-relaxed max-w-md font-sans"
+            >
+              A sparkling functional drink engineered for the moment between ordinary and extraordinary.
+            </motion.p>
+          </div>
+
+          {/* Action CTAs */}
+          <div className="overflow-hidden pt-2">
+            <motion.div
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: "0%", opacity: 1 }}
+              transition={{ duration: 0.9, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-col sm:flex-row gap-4"
+            >
+              {/* Primary CTA */}
+              <button
+                onClick={handlePrimaryClick}
+                className="hud-border px-8 py-4 bg-[#00f0ff] text-[#040406] font-display text-xs font-black tracking-widest hover:bg-[#ccff00] transition-colors duration-300 shadow-[0_0_25px_rgba(0,240,255,0.4)]"
               >
-                STATE.
-              </span>
-            </h1>
-            <p className="text-xs md:text-sm font-display text-[#ccff00] tracking-widest uppercase pt-2">
-              // {activeState.subtitle}
-            </p>
-          </div>
+                ENTER THE STATE
+              </button>
 
-          {/* Description */}
-          <p className="text-sm md:text-base text-[#64748b] leading-relaxed max-w-lg font-sans">
-            {activeState.description}
-          </p>
-
-          {/* State Switcher Buttons */}
-          <div className="space-y-3 pt-2">
-            <div className="text-[10px] font-display text-[#64748b] tracking-widest uppercase">
-              SELECT TARGET PHYSIOLOGICAL STATE:
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {PRODUCT_STATES.map((st) => {
-                const isSelected = activeState.id === st.id;
-                return (
-                  <button
-                    key={st.id}
-                    onClick={() => onStateSelect(st)}
-                    className={`hud-border p-3 text-left transition-all duration-300 ${
-                      isSelected
-                        ? "bg-[#00f0ff]/10 border-[#00f0ff] shadow-[0_0_15px_rgba(0,240,255,0.25)]"
-                        : "hover:border-[#64748b]"
-                    }`}
-                  >
-                    <div className="text-[9px] font-display text-[#64748b]">
-                      {st.code}
-                    </div>
-                    <div
-                      className={`text-xs font-display font-bold ${
-                        isSelected ? "text-[#f0f4f8]" : "text-[#64748b]"
-                      }`}
-                    >
-                      {st.name}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Active State Telemetry Strip */}
-          <div className="hud-border p-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-            <div>
-              <div className="text-[9px] font-display text-[#64748b]">
-                BIO-RESONANCE
-              </div>
-              <div
-                className="text-base font-display font-bold pt-0.5"
-                style={{ color: activeState.hex }}
+              {/* Secondary CTA */}
+              <button
+                onClick={handleSecondaryClick}
+                className="hud-border px-8 py-4 text-[#00f0ff] font-display text-xs font-bold tracking-widest hover:bg-[#00f0ff]/10 hover:text-[#f0f4f8] transition-all duration-300"
               >
-                {activeState.telemetry.bioResonance}
-              </div>
-            </div>
-            <div>
-              <div className="text-[9px] font-display text-[#64748b]">
-                DOPAMINE FLUX
-              </div>
-              <div className="text-base font-display font-bold text-[#f0f4f8] pt-0.5">
-                {activeState.telemetry.dopamineFlux}
-              </div>
-            </div>
-            <div>
-              <div className="text-[9px] font-display text-[#64748b]">
-                ABSORPTION
-              </div>
-              <div className="text-base font-display font-bold text-[#f0f4f8] pt-0.5">
-                {activeState.telemetry.absorptionTime}
-              </div>
-            </div>
-            <div>
-              <div className="text-[9px] font-display text-[#64748b]">
-                CELLULAR CHARGE
-              </div>
-              <div
-                className="text-base font-display font-bold pt-0.5"
-                style={{ color: activeState.hex }}
-              >
-                {activeState.telemetry.cellularCharge}
-              </div>
-            </div>
+                DISCOVER AER/0
+              </button>
+            </motion.div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Right Column: 3D Hero Canister Canvas */}
+        {/* Right Column: Full-Screen 3D Bottle */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1 }}
-          className="lg:col-span-6 h-[480px] sm:h-[580px] lg:h-[650px] relative w-full flex items-center justify-center"
+          transition={{ duration: 1.2, delay: 0.2 }}
+          className="lg:col-span-6 h-[500px] sm:h-[620px] lg:h-[700px] relative w-full flex items-center justify-center"
         >
-          {/* Ambient Glow Disk Behind Canister */}
-          <div
-            className="absolute w-72 h-72 rounded-full blur-[100px] opacity-35 transition-colors duration-700 pointer-events-none"
-            style={{ backgroundColor: activeState.hex }}
-          />
-
-          {/* 3D Scene */}
-          <Scene3D accentColor={activeState.hex} scale={1.25} />
-
-          {/* HUD Overlay Reticle */}
-          <div className="absolute inset-0 pointer-events-none border border-[#00f0ff]/10 m-4 flex flex-col justify-between p-4">
-            <div className="flex justify-between text-[9px] font-display text-[#00f0ff]/50">
-              <span>+ CAM_VIEW: ROTATIONAL 360</span>
-              <span>CANISTER // 355ML</span>
-            </div>
-            <div className="flex justify-between text-[9px] font-display text-[#00f0ff]/50">
-              <span>[TARGET LOCKED]</span>
-              <span>RENDER: R3F HARDWARE ACCEL</span>
-            </div>
-          </div>
+          <Scene3D accentColor="#00f0ff" scale={1.3} />
         </motion.div>
       </div>
 
-      {/* Bottom Scroll Indicator */}
+      {/* Vertical Scroll Indicator */}
       <div className="max-w-7xl mx-auto w-full px-4 md:px-8 flex justify-between items-center text-[10px] font-display text-[#64748b] pt-6 z-10 border-t border-[#00f0ff]/10">
-        <span>[SCROLL TO EXPLORE CELLULAR DYNAMICS]</span>
-        <div className="flex items-center gap-2 text-[#00f0ff]">
-          <span className="animate-bounce">↓</span>
-          <span>DISCOVER SCIENCE</span>
-        </div>
+        <span>[RESTRICTED ALLOCATION // BATCH 01]</span>
+
+        {/* Vertical Animated Scroll Line */}
+        <a
+          href="#cinematic"
+          className="flex items-center gap-3 text-[#00f0ff] hover:text-[#ccff00] transition-colors group cursor-pointer"
+        >
+          <span className="tracking-widest">SCROLL TO UNLOCK</span>
+          <div className="w-4 h-8 hud-border flex flex-col items-center justify-start p-1 relative">
+            <motion.div
+              className="w-1 h-2 bg-[#00f0ff] rounded-full"
+              animate={{ y: [0, 16, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </div>
+        </a>
       </div>
+
+      {/* Launch Registration Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-[#040406]/95 backdrop-blur-md flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="max-w-lg w-full hud-border p-8 bg-[#0a0c14] space-y-6 text-left relative"
+            >
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setAllocationResult(null);
+                }}
+                className="absolute top-4 right-4 text-xs font-display text-[#64748b] hover:text-[#00f0ff]"
+              >
+                [CLOSE X]
+              </button>
+
+              {!allocationResult ? (
+                <>
+                  <div className="space-y-2 border-b border-[#00f0ff]/20 pb-4">
+                    <div className="text-[10px] font-display text-[#00f0ff]">
+                      AUTHENTICATION // ALLOCATION PROTOCOL
+                    </div>
+                    <h3 className="font-display text-2xl font-black text-[#f0f4f8]">
+                      ENTER THE STATE
+                    </h3>
+                    <p className="text-xs text-[#64748b] font-sans">
+                      Request priority batch access for AER/0 functional state hydration.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleModalSubmit} className="space-y-4">
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-display text-[#64748b]">
+                        SUBJECT FULL NAME
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="DR. ALEX VANCE"
+                        value={formData.name}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
+                        className="w-full bg-[#040406] border border-[#00f0ff]/30 p-3 font-mono text-xs text-[#f0f4f8] focus:border-[#00f0ff] focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-display text-[#64748b]">
+                        COMMUNICATION ENDPOINT (EMAIL)
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="ALEX@LABORATORY.IO"
+                        value={formData.email}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
+                        className="w-full bg-[#040406] border border-[#00f0ff]/30 p-3 font-mono text-xs text-[#f0f4f8] focus:border-[#00f0ff] focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-display text-[#64748b]">
+                        FORMULATION SELECTION
+                      </label>
+                      <select
+                        value={formData.formula}
+                        onChange={(e) =>
+                          setFormData({ ...formData, formula: e.target.value })
+                        }
+                        className="w-full bg-[#040406] border border-[#00f0ff]/30 p-3 font-mono text-xs text-[#f0f4f8] focus:border-[#00f0ff] focus:outline-none"
+                      >
+                        {FORMULAS.map((fm) => (
+                          <option key={fm.id} value={fm.name}>
+                            {fm.code} // {fm.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-4 bg-[#00f0ff] text-[#040406] font-display text-xs font-black tracking-widest hover:bg-[#ccff00] transition-colors"
+                    >
+                      CONFIRM STATE ENTRY PROTOCOL
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2 border-b border-[#00f0ff]/20 pb-4">
+                    <div className="text-[10px] font-display text-[#ccff00]">
+                      ✓ ALLOCATION RESERVED
+                    </div>
+                    <h3 className="font-display text-2xl font-black text-[#f0f4f8]">
+                      STATE ACCESS GRANTED
+                    </h3>
+                  </div>
+
+                  <div className="hud-border p-4 bg-[#040406] space-y-2 font-mono text-xs text-[#64748b]">
+                    <div className="flex justify-between">
+                      <span>ALLOCATION ID:</span>
+                      <span className="text-[#00f0ff] font-bold">
+                        {allocationResult.id}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>SUBJECT:</span>
+                      <span className="text-[#f0f4f8]">{allocationResult.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>FORMULA:</span>
+                      <span className="text-[#ccff00]">{allocationResult.formula}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setAllocationResult(null);
+                    }}
+                    className="w-full py-3 bg-[#00f0ff] text-[#040406] font-display text-xs font-bold tracking-widest hover:bg-[#ccff00] transition-colors"
+                  >
+                    RETURN TO EXPERIENCE
+                  </button>
+                </>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
