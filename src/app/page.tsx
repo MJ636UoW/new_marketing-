@@ -6,6 +6,7 @@ import { Navbar } from "@/components/ui/Navbar";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { ScrollCinematic } from "@/components/ui/ScrollCinematic";
 import { ProductStory } from "@/components/ui/ProductStory";
+import { InsideSystem } from "@/components/ui/InsideSystem";
 import { IngredientScience } from "@/components/ui/IngredientScience";
 import { FlavorSelection } from "@/components/ui/FlavorSelection";
 import { LaunchRegistration } from "@/components/ui/LaunchRegistration";
@@ -39,19 +40,22 @@ export default function Home() {
           {/* 5. Product Story Sections ("Change Your State") */}
           <ProductStory />
 
-          {/* 6. Ingredient Science Section */}
+          {/* 6. Interactive Inside The System Section */}
+          <InsideSystem />
+
+          {/* 7. Ingredient Science Section */}
           <IngredientScience />
 
-          {/* 7. Flavor Selection Section */}
+          {/* 8. Flavor Selection Section */}
           <FlavorSelection
             activeFormula={activeFormula}
             onFormulaSelect={handleFormulaSelect}
           />
 
-          {/* 8. Launch Registration Section */}
+          {/* 9. Launch Registration Section */}
           <LaunchRegistration />
 
-          {/* 9. Footer */}
+          {/* 10. Footer */}
           <Footer />
         </>
       )}
