@@ -60,15 +60,16 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
   const scrollVelocityRaw = useVelocity(scrollYProgress);
   const smoothVelocity = useSpring(scrollVelocityRaw, { damping: 25, stiffness: 200 });
 
-  // 1:1 Overlapping Gapless Opacity & Motion Transforms
-  const sec1Opacity = useTransform(scrollYProgress, [0.0, 0.28, 0.36], [1, 1, 0]);
-  const sec1Y = useTransform(scrollYProgress, [0.0, 0.28, 0.36], [0, 0, -40]);
+  // Equal 3-Act Scroll Distribution across 300vh pin height
+  // Act 1: 0.0 - 0.33 | Act 2: 0.33 - 0.66 | Act 3: 0.66 - 1.0
+  const sec1Opacity = useTransform(scrollYProgress, [0.0, 0.25, 0.33], [1, 1, 0]);
+  const sec1Y = useTransform(scrollYProgress, [0.0, 0.25, 0.33], [0, 0, -30]);
 
-  const sec2Opacity = useTransform(scrollYProgress, [0.30, 0.38, 0.62, 0.70], [0, 1, 1, 0]);
-  const sec2Y = useTransform(scrollYProgress, [0.30, 0.38, 0.62, 0.70], [40, 0, 0, -40]);
+  const sec2Opacity = useTransform(scrollYProgress, [0.30, 0.38, 0.58, 0.66], [0, 1, 1, 0]);
+  const sec2Y = useTransform(scrollYProgress, [0.30, 0.38, 0.58, 0.66], [40, 0, 0, -30]);
 
-  const sec3Opacity = useTransform(scrollYProgress, [0.64, 0.72, 1.0], [0, 1, 1]);
-  const sec3Y = useTransform(scrollYProgress, [0.64, 0.72, 1.0], [40, 0, 0]);
+  const sec3Opacity = useTransform(scrollYProgress, [0.63, 0.72, 0.95, 1.0], [0, 1, 1, 1]);
+  const sec3Y = useTransform(scrollYProgress, [0.63, 0.72, 0.95, 1.0], [40, 0, 0, 0]);
 
   useEffect(() => {
     const unsubscribeProgress = scrollYProgress.on("change", (v) => {
@@ -90,7 +91,7 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
   const activeIndex = progressVal < 0.33 ? 0 : progressVal < 0.66 ? 1 : 2;
 
   return (
-    <div ref={containerRef} className="relative h-[180vh] w-full bg-[#040406]">
+    <div ref={containerRef} className="relative h-[300vh] w-full bg-[#040406]">
       {/* Sticky Fullscreen Canvas & Editorial Overlays */}
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden hud-grid">
         {/* Native Three.js 3D Canvas Layer */}
@@ -124,7 +125,7 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
           </div>
         </div>
 
-        {/* Continuous Overlapping Editorial Overlay Layers (Zero Gap) */}
+        {/* Continuous Overlapping Editorial Overlay Layers */}
         <div className="absolute inset-0 pointer-events-none z-20 max-w-7xl mx-auto w-full px-6 md:px-12 flex items-center">
           {/* SECTION 01 */}
           <motion.div

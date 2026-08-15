@@ -50,23 +50,23 @@ export function Aer0CinematicCanvas({
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.3;
 
     container.appendChild(renderer.domElement);
 
     // 3. Studio Lighting Suite
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     scene.add(ambientLight);
 
-    const rimLight = new THREE.DirectionalLight(new THREE.Color(accentColorRef.current), 4.5);
+    const rimLight = new THREE.DirectionalLight(new THREE.Color(accentColorRef.current), 4.8);
     rimLight.position.set(-5, 3, -4);
     scene.add(rimLight);
 
-    const mainLight = new THREE.DirectionalLight(0xffffff, 2.2);
+    const mainLight = new THREE.DirectionalLight(0xffffff, 2.4);
     mainLight.position.set(4, 5, 4);
     scene.add(mainLight);
 
-    const intLight = new THREE.PointLight(0xccff00, 2.5, 4.5);
+    const intLight = new THREE.PointLight(0xccff00, 3.0, 5.0);
     intLight.position.set(0, 0, 0);
     scene.add(intLight);
 
@@ -115,7 +115,7 @@ export function Aer0CinematicCanvas({
     const liquidMat = new THREE.MeshStandardMaterial({
       color: new THREE.Color("#04060c"),
       emissive: new THREE.Color(accentColorRef.current),
-      emissiveIntensity: 0.9,
+      emissiveIntensity: 0.95,
       roughness: 0.2,
       metalness: 0.2,
     });
@@ -147,7 +147,7 @@ export function Aer0CinematicCanvas({
     const capRingMat = new THREE.MeshStandardMaterial({
       color: new THREE.Color(accentColorRef.current),
       emissive: new THREE.Color(accentColorRef.current),
-      emissiveIntensity: 0.6,
+      emissiveIntensity: 0.7,
     });
     const capRingMesh = new THREE.Mesh(capRingGeo, capRingMat);
     capRingMesh.position.set(0, 0.28, 0);
@@ -188,7 +188,7 @@ export function Aer0CinematicCanvas({
     updateWordmark(accentColorRef.current);
 
     // Inner Carbonation Particles
-    const innerParticleCount = 180;
+    const innerParticleCount = 200;
     const innerGeo = new THREE.BufferGeometry();
     const innerPositions = new Float32Array(innerParticleCount * 3);
     const innerSpeeds = new Float32Array(innerParticleCount);
@@ -205,7 +205,7 @@ export function Aer0CinematicCanvas({
     }
     innerGeo.setAttribute("position", new THREE.BufferAttribute(innerPositions, 3));
     const innerMat = new THREE.PointsMaterial({
-      size: 0.035,
+      size: 0.038,
       color: new THREE.Color(accentColorRef.current),
       transparent: true,
       opacity: 0.85,
@@ -214,13 +214,13 @@ export function Aer0CinematicCanvas({
     const innerParticles = new THREE.Points(innerGeo, innerMat);
     bottleGroup.add(innerParticles);
 
-    // Atmospheric Cloud Particles
-    const atmosCount = 300;
+    // Atmospheric Cloud Particles for Act 3
+    const atmosCount = 350;
     const atmosGeo = new THREE.BufferGeometry();
     const atmosPositions = new Float32Array(atmosCount * 3);
 
     for (let i = 0; i < atmosCount; i++) {
-      const r = 0.8 + Math.random() * 2.2;
+      const r = 0.6 + Math.random() * 2.5;
       const theta = Math.random() * Math.PI * 2;
       const phi = (Math.random() - 0.5) * Math.PI;
 
@@ -230,7 +230,7 @@ export function Aer0CinematicCanvas({
     }
     atmosGeo.setAttribute("position", new THREE.BufferAttribute(atmosPositions, 3));
     const atmosMat = new THREE.PointsMaterial({
-      size: 0.05,
+      size: 0.055,
       color: new THREE.Color("#ccff00"),
       transparent: true,
       opacity: 0.0,
@@ -261,12 +261,11 @@ export function Aer0CinematicCanvas({
     const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(container);
 
-    // 5. Smooth 60 FPS Render Loop
+    // 5. Continuous 60 FPS Render Loop
     let animationFrameId: number;
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
-      const time = performance.now() * 0.001;
 
       const p = Math.max(0, Math.min(1, scrollProgressRef.current));
       const vel = scrollVelocityRef.current;
@@ -278,36 +277,39 @@ export function Aer0CinematicCanvas({
       ringMat.color.lerp(targetCol, 0.08);
       innerMat.color.lerp(targetCol, 0.08);
 
-      // Act 1 -> Act 2 Explosive Separation
-      const act2Factor = THREE.MathUtils.smoothstep(p, 0.1, 0.45) - THREE.MathUtils.smoothstep(p, 0.55, 0.85);
-      capGroup.position.y = THREE.MathUtils.lerp(capGroup.position.y, 2.05 + act2Factor * 1.1, 0.1);
-      shellMesh.position.y = THREE.MathUtils.lerp(shellMesh.position.y, act2Factor * 0.4, 0.1);
-      liquidMesh.position.y = THREE.MathUtils.lerp(liquidMesh.position.y, -act2Factor * 0.3, 0.1);
+      // Act 1 (0.0 to 0.33) -> Act 2 Exploded Separation (0.33 to 0.66)
+      const act2Factor = THREE.MathUtils.smoothstep(p, 0.25, 0.55) - THREE.MathUtils.smoothstep(p, 0.66, 0.95);
+      capGroup.position.y = THREE.MathUtils.lerp(capGroup.position.y, 2.05 + act2Factor * 1.2, 0.1);
+      shellMesh.position.y = THREE.MathUtils.lerp(shellMesh.position.y, act2Factor * 0.45, 0.1);
+      liquidMesh.position.y = THREE.MathUtils.lerp(liquidMesh.position.y, -act2Factor * 0.35, 0.1);
 
-      // Act 3 Atmosphere expansion
-      const act3Factor = THREE.MathUtils.smoothstep(p, 0.35, 0.70);
-      atmosMat.opacity = THREE.MathUtils.lerp(atmosMat.opacity, act3Factor * 0.85, 0.1);
-      atmosParticles.rotation.y += 0.002 + act3Factor * 0.01;
+      // Act 3 Atmosphere Expansion & Particle Activation (0.66 to 1.0)
+      const act3Factor = THREE.MathUtils.smoothstep(p, 0.55, 0.80);
+      atmosMat.opacity = THREE.MathUtils.lerp(atmosMat.opacity, act3Factor * 0.9, 0.1);
+      atmosParticles.rotation.y += 0.003 + act3Factor * 0.015;
 
       // Camera Orbit & Plunge
       let targetCamX = 0;
       let targetCamY = 0;
       let targetCamZ = 5.8;
 
-      if (p >= 0.3 && p < 0.7) {
-        const orbitProgress = (p - 0.3) / 0.4;
-        const angle = orbitProgress * Math.PI * 1.8;
+      if (p >= 0.33 && p < 0.66) {
+        // Act 2 Orbit Arc
+        const orbitProgress = (p - 0.33) / 0.33;
+        const angle = orbitProgress * Math.PI * 1.6;
         targetCamX = Math.sin(angle) * 5.4;
         targetCamZ = Math.cos(angle) * 5.4;
-        targetCamY = Math.sin(orbitProgress * Math.PI) * 0.9;
-      } else if (p >= 0.7) {
-        const immerseProgress = (p - 0.7) / 0.3;
+        targetCamY = Math.sin(orbitProgress * Math.PI) * 0.8;
+      } else if (p >= 0.66) {
+        // Act 3 Deep Immersion Plunge into Glowing Core
+        const immerseProgress = (p - 0.66) / 0.34;
         const easeImmersion = Math.sin(immerseProgress * Math.PI);
-        targetCamZ = THREE.MathUtils.lerp(5.4, 2.2, easeImmersion);
-        targetCamY = THREE.MathUtils.lerp(0.0, 0.2, easeImmersion);
+        targetCamZ = THREE.MathUtils.lerp(5.4, 2.0, easeImmersion);
+        targetCamY = THREE.MathUtils.lerp(0.0, 0.15, easeImmersion);
+        targetCamX = THREE.MathUtils.lerp(0.0, 0.1, easeImmersion);
       }
 
-      // Camera Velocity Blur
+      // Camera FOV Easing
       const velNorm = Math.min(vel * 0.04, 1.0);
       camera.fov = THREE.MathUtils.lerp(camera.fov, 42 + velNorm * 10, 0.1);
       camera.updateProjectionMatrix();
@@ -317,7 +319,7 @@ export function Aer0CinematicCanvas({
       camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetCamZ, 0.08);
       camera.lookAt(0, 0.1, 0);
 
-      bottleGroup.rotation.y += 0.005 + p * 0.005;
+      bottleGroup.rotation.y += 0.005 + p * 0.004;
 
       // Particles upward drift
       const posAttr = innerGeo.attributes.position as THREE.BufferAttribute;
