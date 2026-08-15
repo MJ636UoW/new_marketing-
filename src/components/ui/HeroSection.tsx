@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Scene3D } from "../3d/Scene3D";
 import { ModalType } from "./GlobalModals";
+import { MagneticButton } from "./MagneticButton";
 
 interface HeroSectionProps {
   onOpenModal: (modal: ModalType) => void;
@@ -37,7 +38,7 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
       id="hero"
       className="relative w-full min-h-screen pt-24 pb-12 flex flex-col justify-between hud-grid overflow-hidden bg-[#040406] selection:bg-[#00f0ff] selection:text-[#040406]"
     >
-      {/* Subtle Atmospheric Floating Particles in Hero Background */}
+      {/* Subtle Floating Background Particles */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         {[...Array(20)].map((_, i) => (
           <motion.div
@@ -63,7 +64,7 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
         ))}
       </div>
 
-      {/* Cyan Light Glow Disk Reacting to Pointer Movement */}
+      {/* Cursor Reactive Cyan Backdrop Light */}
       <motion.div
         className="absolute w-[500px] h-[500px] rounded-full blur-[140px] bg-[#00f0ff]/20 pointer-events-none z-0"
         animate={{
@@ -78,7 +79,7 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
         }}
       />
 
-      {/* Top HUD Telemetry Info Bar */}
+      {/* Top Telemetry Header */}
       <div className="max-w-7xl mx-auto w-full px-4 md:px-8 flex justify-between items-center z-10 font-display text-xs text-[#64748b]">
         {/* Live Status Indicator */}
         <div className="hud-border px-3 py-1.5 flex items-center gap-2 bg-[#040406]/90 backdrop-blur-md">
@@ -90,7 +91,7 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
           <span className="text-[10px] text-[#64748b]">ATM: 3.1 BAR</span>
         </div>
 
-        {/* Product Name Letter-by-Letter Display */}
+        {/* Brand Name Staggered Letter Reveal */}
         <div className="hidden sm:flex items-center gap-1 font-display font-extrabold tracking-widest text-lg text-[#f0f4f8]">
           {brandName.split("").map((char, index) => (
             <motion.span
@@ -108,7 +109,7 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
 
       {/* Main Grid Content */}
       <div className="max-w-7xl mx-auto w-full px-4 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto z-10">
-        {/* Left Column: Mysterious Hero Copy */}
+        {/* Left Column: Masked Reveals & Magnetic CTAs */}
         <div className="lg:col-span-6 space-y-8">
           {/* Kicker */}
           <div className="overflow-hidden">
@@ -147,7 +148,7 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
             </motion.p>
           </div>
 
-          {/* Action CTAs */}
+          {/* Magnetic Desktop CTAs */}
           <div className="overflow-hidden pt-2">
             <motion.div
               initial={{ y: "100%", opacity: 0 }}
@@ -155,26 +156,26 @@ export function HeroSection({ onOpenModal }: HeroSectionProps) {
               transition={{ duration: 0.9, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="flex flex-col sm:flex-row gap-4"
             >
-              {/* Primary CTA */}
-              <button
+              {/* Magnetic Primary CTA */}
+              <MagneticButton
                 onClick={() => onOpenModal("registration")}
                 className="hud-border px-8 py-4 bg-[#00f0ff] text-[#040406] font-display text-xs font-black tracking-widest hover:bg-[#ccff00] transition-colors duration-300 shadow-[0_0_25px_rgba(0,240,255,0.4)]"
               >
                 ENTER THE STATE
-              </button>
+              </MagneticButton>
 
-              {/* Secondary CTA */}
-              <button
+              {/* Magnetic Secondary CTA */}
+              <MagneticButton
                 onClick={handleSecondaryClick}
                 className="hud-border px-8 py-4 text-[#00f0ff] font-display text-xs font-bold tracking-widest hover:bg-[#00f0ff]/10 hover:text-[#f0f4f8] transition-all duration-300"
               >
                 DISCOVER AER/0
-              </button>
+              </MagneticButton>
             </motion.div>
           </div>
         </div>
 
-        {/* Right Column: Full-Screen 3D Bottle */}
+        {/* Right Column: 3D Bottle */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
