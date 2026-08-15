@@ -8,17 +8,16 @@ import { ScrollCinematic } from "@/components/ui/ScrollCinematic";
 import { ProductStory } from "@/components/ui/ProductStory";
 import { InsideSystem } from "@/components/ui/InsideSystem";
 import { IngredientScience } from "@/components/ui/IngredientScience";
-import { FlavorSelection } from "@/components/ui/FlavorSelection";
+import { FlavorSelection, FLAVOR_STATIONS, FlavorStation } from "@/components/ui/FlavorSelection";
 import { LaunchRegistration } from "@/components/ui/LaunchRegistration";
 import { Footer } from "@/components/ui/Footer";
-import { FORMULAS, Formula } from "@/lib/constants";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
-  const [activeFormula, setActiveFormula] = useState<Formula>(FORMULAS[0]);
+  const [activeFlavor, setActiveFlavor] = useState<FlavorStation>(FLAVOR_STATIONS[0]);
 
-  const handleFormulaSelect = (formula: Formula) => {
-    setActiveFormula(formula);
+  const handleSelectFlavor = (flavor: FlavorStation) => {
+    setActiveFlavor(flavor);
   };
 
   return (
@@ -46,10 +45,10 @@ export default function Home() {
           {/* 7. Ingredient Science Section */}
           <IngredientScience />
 
-          {/* 8. Flavor Selection Section */}
+          {/* 8. CHOOSE YOUR STATE (Flavor Stations Section) */}
           <FlavorSelection
-            activeFormula={activeFormula}
-            onFormulaSelect={handleFormulaSelect}
+            activeFlavor={activeFlavor}
+            onSelectFlavor={handleSelectFlavor}
           />
 
           {/* 9. Launch Registration Section */}
