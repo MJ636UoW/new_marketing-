@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { SmoothScroll } from "@/components/ui/SmoothScroll";
 import { LoadingSequence } from "@/components/ui/LoadingSequence";
 import { Navbar } from "@/components/ui/Navbar";
 import { HeroSection } from "@/components/ui/HeroSection";
@@ -31,32 +32,34 @@ export default function Home() {
   };
 
   return (
-    <main className="relative bg-[#040406] text-[#f0f4f8] min-h-screen overflow-x-hidden">
-      {/* 1. Diagnostic Boot Loading Overlay */}
-      {showLoadingOverlay && (
-        <LoadingSequence onComplete={() => setShowLoadingOverlay(false)} />
-      )}
+    <SmoothScroll>
+      <main className="relative bg-[#040406] text-[#f0f4f8] min-h-screen overflow-x-hidden">
+        {/* 1. Diagnostic Boot Loading Overlay */}
+        {showLoadingOverlay && (
+          <LoadingSequence onComplete={() => setShowLoadingOverlay(false)} />
+        )}
 
-      {/* 2. Main Site Structure Always Mounted & Ready */}
-      <Navbar onOpenModal={handleOpenModal} />
-      <HeroSection onOpenModal={handleOpenModal} />
-      <ScrollCinematic />
-      <ProductStory />
-      <InsideSystem />
-      <IngredientScience />
-      <FlavorSelection
-        activeFlavor={activeFlavor}
-        onSelectFlavor={handleSelectFlavor}
-      />
-      <LaunchRegistration />
-      <Footer onOpenModal={handleOpenModal} />
+        {/* 2. Main Site Structure Always Mounted & Ready (Zero Dead Scroll Zones) */}
+        <Navbar onOpenModal={handleOpenModal} />
+        <HeroSection onOpenModal={handleOpenModal} />
+        <ScrollCinematic />
+        <ProductStory />
+        <InsideSystem />
+        <IngredientScience />
+        <FlavorSelection
+          activeFlavor={activeFlavor}
+          onSelectFlavor={handleSelectFlavor}
+        />
+        <LaunchRegistration />
+        <Footer onOpenModal={handleOpenModal} />
 
-      {/* 3. Global Modals Suite */}
-      <GlobalModals
-        activeModal={activeModal}
-        onClose={handleCloseModal}
-        defaultFlavor={activeFlavor.name}
-      />
-    </main>
+        {/* 3. Global Modals Suite */}
+        <GlobalModals
+          activeModal={activeModal}
+          onClose={handleCloseModal}
+          defaultFlavor={activeFlavor.name}
+        />
+      </main>
+    </SmoothScroll>
   );
 }
