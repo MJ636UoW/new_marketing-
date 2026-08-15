@@ -145,7 +145,6 @@ export function Aer0Canister({
         <Text
           fontSize={0.28}
           letterSpacing={0.2}
-          font="/fonts/SpaceGrotesk-Bold.ttf"
           color="#f0f4f8"
           anchorX="center"
           anchorY="middle"
