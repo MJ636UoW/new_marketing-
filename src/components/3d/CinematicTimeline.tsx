@@ -60,7 +60,7 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
   const scrollVelocityRaw = useVelocity(scrollYProgress);
   const smoothVelocity = useSpring(scrollVelocityRaw, { damping: 25, stiffness: 200 });
 
-  // Perfectly Fitted Zero-Gap Overlapping Opacity & Motion Keyframes across 200vh
+  // Tight 160vh zero-gap keyframe interpolation
   const sec1Opacity = useTransform(scrollYProgress, [0.0, 0.28, 0.35], [1, 1, 0]);
   const sec1Y = useTransform(scrollYProgress, [0.0, 0.28, 0.35], [0, 0, -25]);
 
@@ -90,9 +90,9 @@ export function CinematicTimeline({ accentColor = "#00f0ff" }: CinematicTimeline
   const activeIndex = progressVal < 0.33 ? 0 : progressVal < 0.66 ? 1 : 2;
 
   return (
-    <div id="cinematic" ref={containerRef} className="relative h-[200vh] w-full bg-[#040406]">
+    <div id="cinematic" ref={containerRef} className="relative h-[160vh] w-full bg-[#040406]">
       {/* Sticky Fullscreen Canvas & Editorial Overlays */}
-      <div className="sticky top-0 h-screen w-full flex flex-col justify-between overflow-hidden hud-grid pt-20 pb-6 px-4 md:px-12">
+      <div className="sticky top-0 h-screen w-full flex flex-col justify-between overflow-hidden hud-grid pt-20 pb-4 px-4 md:px-12">
         {/* Native Three.js 3D Canvas Layer */}
         <div className="absolute inset-0 z-0 w-full h-full">
           <Aer0CinematicCanvas

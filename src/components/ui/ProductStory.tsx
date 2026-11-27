@@ -8,10 +8,10 @@ export function ProductStory() {
   const [selectedState, setSelectedState] = useState<ProductState>(PRODUCT_STATES[0]);
 
   return (
-    <section id="story" className="py-24 px-4 md:px-8 hud-grid relative bg-[#040406]">
-      <div className="max-w-7xl mx-auto space-y-16">
+    <section id="story" className="pt-0 pb-20 px-4 md:px-8 hud-grid relative bg-[#040406]">
+      <div className="max-w-7xl mx-auto space-y-12">
         {/* Section Header */}
-        <div className="space-y-4 text-center max-w-3xl mx-auto">
+        <div className="space-y-4 text-center max-w-3xl mx-auto pt-8 border-t border-[#00f0ff]/20">
           <div className="inline-flex items-center gap-2 text-xs font-display text-[#00f0ff] tracking-widest border border-[#00f0ff]/20 px-3 py-1">
             <span className="w-1.5 h-1.5 rounded-full bg-[#ccff00] animate-ping" />
             <span>SECTION 02 // PHYSIOLOGICAL STATES</span>
